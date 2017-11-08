@@ -2,13 +2,15 @@ class slurmhpcJob(hpcJob):
     def __init__(self, controller, command = [],job_template= None, shell_script_template = None):
         super(slurmhpcJob, self).__init__(controller,command)
 
-        self.get_templates("slurm_array_job", "slurm_shell")
+        (self.job_template, self.shell_script_template) self.get_templates("slurm_array_job", "slurm_shell")
 
     
         # "slurm_array_job" is launched by sbatch , and internally launches an "slurm_array_shell", passing 
         # to it the index of the job to run. "slurm_array_shell"  then just executes run1.sh, run2.sh
-        # - which are instances of "slurm_shell". Thus we also need to obtain a a template for "slurm_arrya_shell"
-        # 
+        # - which are instances of "slurm_shell". Thus we also need to obtain a a template for "slurm_array_shell"
+        # currently there is no option to customise this as no need envisaged 
+        #
+        self.slurm_array_script = self.controller.options.get("slurm_array_script",None)
 
 
         

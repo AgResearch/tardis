@@ -55,6 +55,8 @@ class hpcJob(object):
         self.shell_script_template = None
 
     def get_templates(self,default_job_template_name, default_shell_template_name):
+        (job_template, shell_script_template) = (None, None)
+        
         if self.controller.options is not None:
             if default_job_template_name is not None:
                 # figure out a job template from the options. (You can specify one of the inbuilt templates by name, or
@@ -74,7 +76,7 @@ class hpcJob(object):
                     
                 if job_template is None:
                     raise tardisException("condorhpcJob: Error job template is null after templating")
-                self.job_template = string.Template(job_template)
+                job_template = string.Template(job_template)
 
 
 
@@ -95,7 +97,9 @@ class hpcJob(object):
                 
             if shell_script_template is None:
                 raise tardisException("condorhpcJob : Error shell template is null after templating")
-            self.shell_script_template = string.Template(shell_script_template)                    
+            shell_script_template = string.Template(shell_script_template)
+
+        return (job_template, shell_script_template)
 
         
     def error(self,errorMessage):

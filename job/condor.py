@@ -5,7 +5,7 @@ class condorhpcJob(hpcJob):
 
         self.job_template = None
 
-        self.get_templates("condor_job", "condor_shell")
+        (self.job_template, self.shell_script_template) = self.get_templates("condor_job", "condor_shell")
         
 
     @classmethod
