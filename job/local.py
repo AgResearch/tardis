@@ -10,6 +10,8 @@ class localhpcJob(hpc.hpcJob):
             
         self.workerList  = {} # this will be overwritten by a shared worker list when the new object is inducted
 
+        self.get_templates(None, "local_shell")
+
     def induct(self,other):
         super(localhpcJob,self).induct(other)
         other.workerList = self.workerList
@@ -84,7 +86,7 @@ class localhpcJob(hpc.hpcJob):
         #proc = subprocess.Popen(ps_command,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         #(stdout, stderr) = proc.communicate()
         #pidList = [record for record in re.split("\n", stdout) if re.search("^PID", record) == None and re.search("defunct", record) is None]
-        #pidList = [re.split("\s+", record)[0] for record in pidList]
+        #pidList = [re.split("\s+", record)[0] for record in shell_script_templatepidList]
         #pidList = [item for item in pidList if len(item) > 0]
         #return pidList
 

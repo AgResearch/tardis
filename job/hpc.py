@@ -54,15 +54,49 @@ class hpcJob(object):
         self.jobHeld = False
         self.shell_script_template = None
 
-        # sometimes we create a skeleton hpcJob just to access various methods - so options may not be set
+    def get_templates(self,default_job_template_name, default_shell_template_name):
         if self.controller.options is not None:
+            if default_job_template_name is not None:
+                # figure out a job template from the options. (You can specify one of the inbuilt templates by name, or
+                # supply a file containing a custom template)
+                job_template_name = self.controller.options.get("job_template_name",None)
+                job_template_filename = self.controller.options.get("jobtemplatefile",None)        
+                if job_template_name is None and job_template_filename is None:
+                    #use the default condor job template
+                    job_template_name = default_job_template_name
+                if job_template_name is not None and job_template_filename is not None:
+                    raise tardisException("error both job_template_name (%s) and job_template_filename (%s) defined - only define one of these"%(job_template_name,job_template_filename) )
+
+                if job_template_name is not None:
+                    job_template = self.controller.options.get(job_template_name, None)
+                else:
+                    job_template = string.join(file(job_template_filename,"r"),"")
+                    
+                if job_template is None:
+                    raise tardisException("condorhpcJob: Error job template is null after templating")
+                self.job_template = string.Template(job_template)
+
+
+
+            # figure out a shell template from the options. (You can specify one of the inbuilt templates by name, or
+            # supply a file containing a custom template)
             shell_template_name = self.controller.options.get("shell_template_name",None)
-            if shell_template_name is None:
-                raise tardisException("error mandatory option shell_template_name not found")
-            shell_template = self.controller.options.get(shell_template_name, None)
-            if shell_template is None:
-                raise tardisException("Error shell template %s not found in options"%shell_template_name)
-            self.shell_script_template = string.Template(shell_template)
+            shell_template_filename = self.controller.options.get("shelltemplatefile",None)        
+            if shell_template_name is None and shell_template_filename is None:
+                #use the default local shell template
+                shell_template_name = default_shell_template_name
+            if shell_template_name is not None and shell_template_filename is not None:
+                raise tardisException("error both shell_template_name (%s) and shell_template_filename (%s) defined - only define one of these"%(shell_template_name,shell_template_filename) )
+
+            if shell_template_name is not None:
+                shell_script_template = self.controller.options.get(shell_template_name, None)
+            else:
+                shell_script_template = string.join(file(shell_template_filename,"r"),"")
+                
+            if shell_script_template is None:
+                raise tardisException("condorhpcJob : Error shell template is null after templating")
+            self.shell_script_template = string.Template(shell_script_template)                    
+
         
     def error(self,errorMessage):
         self.logWriter.info("hpcJob setting error state, message = %s"%errorMessage)

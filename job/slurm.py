@@ -1,29 +1,16 @@
-
-======= work in progress (haven't started yet ) ===========
-
 class slurmhpcJob(hpcJob):
     def __init__(self, controller, command = [],job_template= None, shell_script_template = None):
         super(slurmhpcJob, self).__init__(controller,command)
 
-        self.job_template = None
+        self.get_templates("slurm_array_job", "slurm_shell")
+
+    
+        # "slurm_array_job" is launched by sbatch , and internally launches an "slurm_array_shell", passing 
+        # to it the index of the job to run. "slurm_array_shell"  then just executes run1.sh, run2.sh
+        # - which are instances of "slurm_shell". Thus we also need to obtain a a template for "slurm_arrya_shell"
+        # 
 
 
-        if self.controller.options is not None:
-            job_template_name = self.controller.options.get("job_template_name",None)
-            job_template_filename = self.controller.options.get("jobtemplatefile",None)        
-            if job_template_name is None and job_template_filename is None:
-                raise tardisException("error neither job_template_name or job_template_filename found")
-            if job_template_name is not None and job_template_filename is not None:
-                raise tardisException("error both job_template_name (%s) and job_template_filename (%s) defined - only define one of these"%(job_template_name,job_template_filename) )
-
-            if job_template_name is not None:
-                job_template = self.controller.options.get(job_template_name, None)
-            else:
-                job_template = string.join(file(job_template_filename,"r"),"")
-                
-            if job_template is None:
-                raise tardisException("Error job template %s not found in options"%job_template_name)
-            self.job_template = string.Template(job_template)
         
 
     @classmethod

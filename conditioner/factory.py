@@ -440,6 +440,10 @@ class hpcConditioner(object):
             self.logWriter.info("creating localhpcJob")
             self.hpcClass = local.localhpcJob            
             hpcjob = self.hpcClass(self,conditioned_toolargv)
+        elif hpctype == "slurm":
+            self.logWriter.info("creating slurmhpcJob")
+            self.hpcClass = slurm.slurmhpcJob            
+            hpcjob = self.hpcClass(self,conditioned_toolargv)            
         else:
             self.logWriter.info("unknown hpctype %s, creating generic hpcJob"%hpctype)
             self.hpcClass = hpc.hpcJob            

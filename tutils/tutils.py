@@ -90,7 +90,8 @@ def getDefaultEngineOptions():
        "from_record" : None,
        "to_record" : None,
        "dry_run" : False,
-       "jobtemplatefile" : None,       
+       "jobtemplatefile" : None,
+       "shelltemplatefile" : None,
        "keep_conditioned_data" : False,
        "max_processes" : 20,
        "max_tasks" : 500,
@@ -98,7 +99,7 @@ def getDefaultEngineOptions():
        "batonfile" : None,
        "valid_command_patterns" : "cat awk [t]*blast[nxp] bwa bowtie flexbar",  
        "shell_template_name" : "condor_shell",
-       "job_template_name" : "condor_job",
+       "job_template_name" : None,
        "fast_sequence_input_conditioning" : True,
        "condor_job" : """
 Executable     = $script
@@ -124,20 +125,31 @@ request_memory = 2000
 getenv         = True
 Queue
        """,
-       "galaxy_shell" : """#!/bin/sh
-GALAXY_LIB="/home/galaxy/galaxy/lib"
-if [ "$GALAXY_LIB" != "None" ]; then
-    if [ -n "$PYTHONPATH" ]; then
-        PYTHONPATH="$GALAXY_LIB:$PYTHONPATH"
-    else
-        PYTHONPATH="$GALAXY_LIB"
-    fi
-    export PYTHONPATH
-fi
-[ -f "/home/galaxy/galaxy.env" ] && . /home/galaxy/galaxy.env
+       "slurm_array_job" : """
+#!/bin/bash -e
+
+#SBATCH -J $tardis_job_moniker
+#SBATCH -A $tardis_account_moniker        # Project Account
+#SBATCH --time=20:00:00            # Walltime
+#SBATCH --ntasks=1                 # number of parallel processes
+#SBATCH --ntasks-per-socket=1      # number of processes allowed on a socket
+#SBATCH --cpus-per-task=4          #number of threads per process
+#SBATCH --hint=multithread         # enable hyperthreading
+#SBATCH --mem-per-cpu=8G
+#SBATCH --partition=inv-iranui     # Use nodes in the IRANUI partition
+#SBATCH --array=1-$array_size%50          # Iterate 1 to N, but only run up to 50 concurrent runs at once
+#SBATCH --error=$script-%A_%a.err
+#SBATCH --output=$script-%A_%a.out
+
+srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}
+       """,
+       "slurm_array_script" : """
+#!/bin/bash
+array_index=$1
 cd $hpcdir
-$command
+./run${array_index}.sh
     """,
+       
        "condor_shell" : """#!/bin/bash
 cd $hpcdir
 $command
@@ -174,7 +186,24 @@ export _LMFILES_ MODULEPATH LOADEDMODULES MODULESHOME
 eval `modulecmd sh load qiime`
 cd $hpcdir
 $command
-"""
+""",
+    "slurm_shell" : """#!/bin/sh
+# load any required environment modules
+$load_modules
+
+# activate any required conda environments
+$activate_condas
+
+# run the command
+$command
+
+# write exit code to tardis log
+exit_code=$$?
+echo $$exit_code > $tlog
+
+# exit with the exit code we received from the command
+exit $$exit_code
+"""       
     }
 
     # set values usinf checkAndSetOption e.g. to correctly type some

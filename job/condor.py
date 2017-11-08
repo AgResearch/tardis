@@ -5,23 +5,7 @@ class condorhpcJob(hpcJob):
 
         self.job_template = None
 
-
-        if self.controller.options is not None:
-            job_template_name = self.controller.options.get("job_template_name",None)
-            job_template_filename = self.controller.options.get("jobtemplatefile",None)        
-            if job_template_name is None and job_template_filename is None:
-                raise tardisException("error neither job_template_name or job_template_filename found")
-            if job_template_name is not None and job_template_filename is not None:
-                raise tardisException("error both job_template_name (%s) and job_template_filename (%s) defined - only define one of these"%(job_template_name,job_template_filename) )
-
-            if job_template_name is not None:
-                job_template = self.controller.options.get(job_template_name, None)
-            else:
-                job_template = string.join(file(job_template_filename,"r"),"")
-                
-            if job_template is None:
-                raise tardisException("Error job template %s not found in options"%job_template_name)
-            self.job_template = string.Template(job_template)
+        self.get_templates("condor_job", "condor_shell")
         
 
     @classmethod
