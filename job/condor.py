@@ -1,12 +1,15 @@
+import string, os, stat, subprocess, sys, re
+from job import hpc
 
-class condorhpcJob(hpcJob):
+class condorhpcJob(hpc.hpcJob):
     def __init__(self, controller, command = [],job_template= None, shell_script_template = None):
         super(condorhpcJob, self).__init__(controller,command)
 
         self.job_template = None
 
         (self.job_template, self.shell_script_template) = self.get_templates("condor_job", "condor_shell")
-        
+
+
 
     @classmethod
     def getUnsubmittedJobs(cls, jobList):

@@ -41,7 +41,7 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
 
                                                               
     print "tardis.py : logging this session to %s"%workingRoot
-    c = factory.hpcConditioner(logger,workingRoot,toolargs)
+    c = factory.hpcConditioner(logger,workingRoot,options,toolargs)
     c.options = options
     c.logWriter.info("tardis.py : logging this session to %s"%workingRoot)        
     c.logWriter.info("using %s"%str(options))
@@ -66,7 +66,7 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
         cmd = conditionedCommandIter.next()
                               
         c.logWriter.info("setting up job for conditioned command : %s"%str(cmd)) 
-        job = c.gethpcJob(cmd, options["hpctype"])
+        job = c.gethpcJob(cmd)
         job.runCommand()
 
 
@@ -76,6 +76,11 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
             c.logWriter.info("(running jobs locally and there are %d partially submitted jobs)"%len(c.getUnsubmittedJobs()))
             if len(c.getUnsubmittedJobs()) > 0:
                 c.retryJobSubmission(maxRetries = 1, retryPause = 1)
+
+    # for some hpc types (e.g. slurm array jobs) , runCommand does not actually run the command, it
+    # just sets up the comamnd.
+    c.launchArrayJobs()
+    
                     
 
     # if in a workflow, or conditioning output, and not a dry run , poll for results

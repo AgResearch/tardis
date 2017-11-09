@@ -1,4 +1,4 @@
-import logging,os, itertools, re, string
+import logging,os, itertools, re, string, stat 
 import tutils.tutils as tutils
 import conditioner.fastq as fastq
 import conditioner.fasta as fasta
@@ -11,22 +11,23 @@ import conditioner.sam as sam
 import conditioner.bam as bam
 import conditioner.wait as wait
 import job.local as local
+import job.condor as condor
+import job.slurm as slurm
 import job.hpc as hpc
+
+global SLURM_MAXARRAYSIZE
+SLURM_MAXARRAYSIZE=2  # for testing - make 1000 for real
 
 
 class hpcConditioner(object):
     """
-    This is the base-class for a number of application-specific-conditioners
-
-    (However this base class is sufficient to handle all of the current
-     use-cases, since all of the necessary sub-classing has been done using the
-     dataConditioner class)
+    This is a controller and factory class , for orchestrating conditioning , unconditioning
     """
     #logWriter = tardisLogger
     #workingRoot = None                                 
     #jobList = [] # a list of all the conditioned commands executed - these will map 1-1 to the 
     #              # data conditioners
-    def __init__(self, logWriter, workingRoot, toolargv = [] ):
+    def __init__(self, logWriter, workingRoot, options,toolargv = [] ):
         super(hpcConditioner, self).__init__()
         self.toolargv = toolargv  # the command that is to be condtiioned
         self.logWriter = logWriter
@@ -36,7 +37,80 @@ class hpcConditioner(object):
         self.logWriter.info(os.environ)
         self.hpcClass = None
         self.hpcJobNumber = 1
-        self.options = None
+        self.options = options   
+
+
+        if options["hpctype"] == "condor":
+            self.hpcClass = condor.condorhpcJob
+        elif options["hpctype"] == "local":
+            self.hpcClass = local.localhpcJob            
+        elif options["hpctype"] == "slurm":
+            self.hpcClass = slurm.slurmhpcJob            
+        else:
+            self.logWriter.info("unknown hpctype %s, will use generic class"%options["hpctype"])
+            self.hpcClass = hpc.hpcJob
+
+    def launchArrayJobs(self):
+        """
+        this is only applicable to slurm jobs. This is called after the job scripts have all been
+        created. One or more array jobs are launched (more than one , if the number of jobs is
+        > SLURM_MAXARRAYSIZE=1000. The array job looks roughly like this :
+#!/bin/bash -e
+
+#SBATCH -J $tardis_job_moniker
+#SBATCH -A $tardis_account_moniker        # Project Account
+#SBATCH --time=20:00:00            # Walltime
+#SBATCH --ntasks=1                 # number of parallel processes
+#SBATCH --ntasks-per-socket=1      # number of processes allowed on a socket
+#SBATCH --cpus-per-task=4          #number of threads per process
+#SBATCH --hint=multithread         # enable hyperthreading
+#SBATCH --mem-per-cpu=8G
+#SBATCH --partition=inv-iranui     # Use nodes in the IRANUI partition
+#SBATCH --array=1-$array_size%50          # Iterate 1 to N, but only run up to 50 concurrent runs at once
+#SBATCH --error=$script-%A_%a.err
+#SBATCH --output=$script-%A_%a.out
+
+srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}        
+        """
+        # "slurm_array_job" is launched by sbatch , and internally launches a shim script, passing 
+        # to it the index of the job to run. The shim then just executes run1.sh, run2.sh
+        # - which are instances of "slurm_shell".
+        
+        if self.hpcClass != slurm.slurmhpcJob:
+            return
+
+        # write the slurm array shim to the working folder
+        slurm_array_shim=string.Template(self.options.get("slurm_array_shim",None))
+        shimcode  = slurm_array_shim.safe_substitute(hpcdir=self.workingRoot)
+        shim_file_name = os.path.join(self.workingRoot, "slurm_array_shim.sh")
+        f=open(shim_file_name,"w")
+        self.logWriter.info("hpcConditioner : writing array shim")
+        f.writelines(shimcode)
+        f.close()
+        os.chmod(shim_file_name, stat.S_IRWXU | stat.S_IRGRP |  stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH )
+
+        # write one or more array job files 
+        slurm_array_job = string.Template(self.options.get("slurm_array_job",None))
+        n_launched = 0
+        while n_launched < len(self.jobList):
+            n_launch = min(SLURM_MAXARRAYSIZE - 1, len(self.jobList) - n_launched)
+        
+            arraycode  = slurm_array_job.safe_substitute(tardis_job_moniker=self.toolargv[0], tardis_account_moniker=os.environ['LOGNAME'],\
+                                                                 array_start=str(n_launched+1),array_stop=str(n_launched+n_launch),\
+                                                                 hpcdir=self.workingRoot)
+            array_jobfile_name = os.path.join(self.workingRoot, "array_%d-%d.slurm"%(n_launched+1,n_launched+n_launch))
+            f=open(array_jobfile_name,"w")
+            self.logWriter.info("hpcConditioner : writing array job %s"%array_jobfile_name)
+            f.writelines(arraycode)
+            f.close()
+            os.chmod(array_jobfile_name, stat.S_IRWXU | stat.S_IRGRP |  stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH )
+
+            # launch if we need to
+            if not self.options["dry_run"]:
+                # launch it - a few lines of code , add later
+                pass
+
+            n_launched += n_launch
 
 
     def getJobResultState(self):
@@ -428,25 +502,21 @@ class hpcConditioner(object):
         # (if so , test the toolargs here to see what sort of conditioner to create)
         return hpcConditioner(toolargv)
 
-    def gethpcJob(self, conditioned_toolargv, hpctype="condor"):
+    def gethpcJob(self, conditioned_toolargv):
         """
         base class returns a generic hpcJob
         """
-        if hpctype == "condor":
-            self.logWriter.info("creating condorhpcJob")                
-            self.hpcClass = condor.condorhpcJob
+        if self.hpcClass == condor.condorhpcJob:
+            self.logWriter.info("creating condorhpcJob")                    
             hpcjob = self.hpcClass(self,conditioned_toolargv)            
-        elif hpctype == "local":
-            self.logWriter.info("creating localhpcJob")
-            self.hpcClass = local.localhpcJob            
+        elif self.hpcClass == local.localhpcJob:
+            self.logWriter.info("creating localhpcJob")                
             hpcjob = self.hpcClass(self,conditioned_toolargv)
-        elif hpctype == "slurm":
-            self.logWriter.info("creating slurmhpcJob")
-            self.hpcClass = slurm.slurmhpcJob            
+        elif self.hpcClass == slurm.slurmhpcJob:
+            self.logWriter.info("creating slurmhpcJob")                
             hpcjob = self.hpcClass(self,conditioned_toolargv)            
         else:
-            self.logWriter.info("unknown hpctype %s, creating generic hpcJob"%hpctype)
-            self.hpcClass = hpc.hpcJob            
+            self.logWriter.info("creating generic hpcJob")
             hpcjob = self.hpcClass(self,conditioned_toolargv)
             
         self.jobList.append(hpcjob)

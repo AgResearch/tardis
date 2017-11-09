@@ -125,8 +125,7 @@ request_memory = 2000
 getenv         = True
 Queue
        """,
-       "slurm_array_job" : """
-#!/bin/bash -e
+       "slurm_array_job" : """#!/bin/bash -e
 
 #SBATCH -J $tardis_job_moniker
 #SBATCH -A $tardis_account_moniker        # Project Account
@@ -137,14 +136,13 @@ Queue
 #SBATCH --hint=multithread         # enable hyperthreading
 #SBATCH --mem-per-cpu=8G
 #SBATCH --partition=inv-iranui     # Use nodes in the IRANUI partition
-#SBATCH --array=1-$array_size%50          # Iterate 1 to N, but only run up to 50 concurrent runs at once
+#SBATCH --array=$array_start-$array_stop%50          # Iterate 1 to N, but only run up to 50 concurrent runs at once
 #SBATCH --error=$script-%A_%a.err
 #SBATCH --output=$script-%A_%a.out
 
-srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}
+srun --cpu_bind=v,threads $hpcdir/slurm_array_shim.sh ${SLURM_ARRAY_TASK_ID}
        """,
-       "slurm_array_script" : """
-#!/bin/bash
+       "slurm_array_shim" : """#!/bin/bash
 array_index=$1
 cd $hpcdir
 ./run${array_index}.sh
