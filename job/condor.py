@@ -7,7 +7,7 @@ class condorhpcJob(hpc.hpcJob):
 
         self.job_template = None
 
-        (self.job_template, self.shell_script_template) = self.get_templates("condor_job", "condor_shell")
+        (self.job_template, self.shell_script_template, junk) = self.get_templates("condor_job", "condor_shell", None)
 
 
 
@@ -57,7 +57,7 @@ class condorhpcJob(hpc.hpcJob):
             command = self.command
         
         if len(command) > 0:
-            self.logWriter.info("hpcJob : running %s"%str(command))
+            self.logWriter.info("condorhpcJob : running %s"%str(command))
 
             # set up the shell scriptfile(s) (one per chunk) (unless this is a rerun in which case its already been done)
             if self.submitCount == 0:
@@ -67,7 +67,7 @@ class condorhpcJob(hpc.hpcJob):
                 if os.path.isfile(self.scriptfilename):
                     raise tardisException("error %s already exists"%self.scriptfilename)
                 f=open(self.scriptfilename,"w")
-                self.logWriter.info("hpcJob : condor shell script wrapper is %s"%self.scriptfilename)
+                self.logWriter.info("condorhpcJob : condor shell script wrapper is %s"%self.scriptfilename)
                 f.writelines(shellcode)
                 f.close()
                 os.chmod(self.scriptfilename, stat.S_IRWXU | stat.S_IRGRP |  stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH )
@@ -80,7 +80,7 @@ class condorhpcJob(hpc.hpcJob):
                 self.stdoutnamepattern = "%s\.out\.\S+$"%re.escape(os.path.basename(self.scriptfilename))
                 self.jobfilename=re.sub("\.sh$",".job",self.scriptfilename)
                 jobcode = self.job_template.safe_substitute(script=self.scriptfilename,log=self.logname,rundir=self.workingRoot)
-                self.logWriter.info("hpcJob : condor job file is %s"%self.jobfilename)
+                self.logWriter.info("condorhpcJob : condor job file is %s"%self.jobfilename)
                 f=open(self.jobfilename,"w")
                 f.writelines(jobcode)
                 f.close()
@@ -88,19 +88,19 @@ class condorhpcJob(hpc.hpcJob):
             # submit the condor job 
             condor_submit = ["condor_submit", self.jobfilename]
             if self.controller.options["dry_run"] :
-                self.logWriter.info("hpcJob : this is a dry run - not launching the job")
+                self.logWriter.info("condorhpcJob : this is a dry run - not launching the job")
             else:
-                self.logWriter.info("hpcJob : launching using %s"%str(condor_submit))
+                self.logWriter.info("condorhpcJob : launching using %s"%str(condor_submit))
                 self.proc = subprocess.Popen(condor_submit,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 self.submitCount += 1
                 (self.stdout, self.stderr) = self.proc.communicate()
                 self.submitreturncode = self.proc.returncode                
-                self.logWriter.info("hpcJob : %s has returned (status %s) - here is its output (but now we wait for the real output !)"%(str(condor_submit), self.submitreturncode))
-                self.logWriter.info("hpcJob : stdout : \n%s"%self.stdout)
-                self.logWriter.info("hpcJob : stderr : \n%s"%self.stderr)
+                self.logWriter.info("condorhpcJob : %s has returned (status %s) - here is its output (but now we wait for the real output !)"%(str(condor_submit), self.submitreturncode))
+                self.logWriter.info("condorhpcJob : stdout : \n%s"%self.stdout)
+                self.logWriter.info("condorhpcJob : stderr : \n%s"%self.stderr)
                     
         else:
-	    self.logWriter.info("hpcJob : nothing to do")
+	    self.logWriter.info("condorhpcJob : nothing to do")
 
 
     def getExitFootprint(self):
@@ -136,7 +136,7 @@ class condorhpcJob(hpc.hpcJob):
                 matches[RETURNED] = re.search("return value (\d+)", record, re.IGNORECASE)
 
                 if not matches[RETURNED] is None:
-                    self.logWriter.info("hpcJob : this job (%d) looks finished"%self.jobNumber)
+                    self.logWriter.info("condorhpcJob : this job (%d) looks finished"%self.jobNumber)
                     self.returncode = int(matches[1].groups()[0])
                     if self.returncode != 0:
                         self.error("job number %d returned %d - setting error"%(self.jobNumber, self.returncode))
@@ -175,27 +175,18 @@ class condorhpcJob(hpc.hpcJob):
             # get standard output and error filenames from the job
             stdoutlist = [item for item in os.listdir(self.workingRoot) if re.search(self.stdoutnamepattern, item) != None]
             if len(stdoutlist) != 1:
-                self.logWriter.info("hpcJob : warning could not find unique match for stdout file using %s, in the manifest ( %s )"%(self.stdoutnamepattern, str(os.listdir(self.workingRoot))))
+                self.logWriter.info("condorhpcJob : warning could not find unique match for stdout file using %s, in the manifest ( %s )"%(self.stdoutnamepattern, str(os.listdir(self.workingRoot))))
             else:
                 self.stdoutfilename =  os.path.join(self.workingRoot,stdoutlist[0])
 
             stderrlist = [item for item in os.listdir(self.workingRoot) if re.search(self.stderrnamepattern, item) != None]
             if len(stderrlist) != 1:
-                self.logWriter.info("hpcJob : warning could not find unique match for stderr file using %s, in the manifest ( %s )"%(self.stderrnamepattern, str(os.listdir(self.workingRoot))))
+                self.logWriter.info("condorhpcJob : warning could not find unique match for stderr file using %s, in the manifest ( %s )"%(self.stderrnamepattern, str(os.listdir(self.workingRoot))))
             else:
                 self.stderrfilename =  os.path.join(self.workingRoot,stderrlist[0])
                 
             self.sent = True
 
-            
-        
-        #if not self.sent:
-        #    #self.logWriter.info("DEBUG1 job %d not finished, sleeping before continuing"%self.jobNumber)
-        #    time.sleep(self.POLL_INTERVAL)
-            
-        # sanity check
-        #if self.pollCount * self.POLL_INTERVAL > self.POLL_DURATION:
-        #    raise tardisException("error in tardis.py session - bailing out as we have been hanging around waiting for output for far too long ! ")
 
 
 

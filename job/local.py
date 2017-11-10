@@ -10,7 +10,7 @@ class localhpcJob(hpc.hpcJob):
             
         self.workerList  = {} # this will be overwritten by a shared worker list when the new object is inducted
 
-        (junk, self.shell_script_template) = self.get_templates(None, "local_shell")
+        (junk, self.shell_script_template, junk) = self.get_templates(None, "local_shell", None)
 
     def induct(self,other):
         super(localhpcJob,self).induct(other)
@@ -200,7 +200,7 @@ class localhpcJob(hpc.hpcJob):
                     self.jobHeld = True
 
         else:
-	    self.logWriter.info("hpcJob : nothing to do")
+	    self.logWriter.info("localhpcJob : nothing to do")
 
     def getExitFootprint(self):
         """
@@ -241,7 +241,7 @@ class localhpcJob(hpc.hpcJob):
                 matches[RETURNED] = re.search("return value (\d+)", record, re.IGNORECASE)
 
                 if not matches[RETURNED] is None:
-                    self.logWriter.info("hpcJob : this job (%d) looks finished"%self.jobNumber)
+                    self.logWriter.info("localhpcJob : this job (%d) looks finished"%self.jobNumber)
                     self.returncode = int(matches[1].groups()[0])
                     if self.returncode != 0:
                         self.error("job number %d returned %d - setting error"%(self.jobNumber, self.returncode))
@@ -294,20 +294,12 @@ class localhpcJob(hpc.hpcJob):
             # get standard output and error filenames from the job
             stdoutlist = [item for item in os.listdir(self.workingRoot) if re.search(self.stdoutnamepattern, item) != None]
             if len(stdoutlist) != 1:
-                self.logWriter.info("hpcJob : warning could not find unique match for stdout file using %s, in the manifest ( %s )"%(self.stdoutnamepattern, str(os.listdir(self.workingRoot))))
+                self.logWriter.info("localhpcJob : warning could not find unique match for stdout file using %s, in the manifest ( %s )"%(self.stdoutnamepattern, str(os.listdir(self.workingRoot))))
 
             stderrlist = [item for item in os.listdir(self.workingRoot) if re.search(self.stderrnamepattern, item) != None]
             if len(stderrlist) != 1:
-                self.logWriter.info("hpcJob : warning could not find unique match for stderr file using %s, in the manifest ( %s )"%(self.stderrnamepattern, str(os.listdir(self.workingRoot))))
+                self.logWriter.info("localhpcJob: warning could not find unique match for stderr file using %s, in the manifest ( %s )"%(self.stderrnamepattern, str(os.listdir(self.workingRoot))))
                 
             self.sent = True
         
-        #if not self.sent:
-        #    #self.logWriter.info("DEBUG1 job %d not finished, sleeping before continuing"%self.jobNumber)
-        #    time.sleep(self.POLL_INTERVAL)
-            
-        # sanity check
-        #if self.pollCount * self.POLL_INTERVAL > self.POLL_DURATION:
-        #    raise tardisException("error in tardis.py session - bailing out as we have been hanging around waiting for output for far too long ! ")
-
 

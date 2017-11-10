@@ -27,7 +27,7 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
             return 2
 
 
-    print "using %s"%str(options)
+    #print "using %s"%str(options)
     print "tool args = %s"%str(toolargs)
 
 
@@ -44,7 +44,7 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
     c = factory.hpcConditioner(logger,workingRoot,options,toolargs)
     c.options = options
     c.logWriter.info("tardis.py : logging this session to %s"%workingRoot)        
-    c.logWriter.info("using %s"%str(options))
+    #c.logWriter.info("using %s"%str(options))
     c.logWriter.info("tool args = %s"%str(toolargs))
     
 

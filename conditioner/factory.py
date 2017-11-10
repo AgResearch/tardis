@@ -1,4 +1,4 @@
-import logging,os, itertools, re, string, stat 
+import logging,os, itertools, re, string, stat , subprocess
 import tutils.tutils as tutils
 import conditioner.fastq as fastq
 import conditioner.fasta as fasta
@@ -93,7 +93,7 @@ srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}
         slurm_array_job = string.Template(self.options.get("slurm_array_job",None))
         n_launched = 0
         while n_launched < len(self.jobList):
-            n_launch = min(SLURM_MAXARRAYSIZE - 1, len(self.jobList) - n_launched)
+            n_launch = min(SLURM_MAXARRAYSIZE, len(self.jobList) - n_launched)
         
             arraycode  = slurm_array_job.safe_substitute(tardis_job_moniker=self.toolargv[0], tardis_account_moniker=os.environ['LOGNAME'],\
                                                                  array_start=str(n_launched+1),array_stop=str(n_launched+n_launch),\
@@ -106,10 +106,18 @@ srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}
             os.chmod(array_jobfile_name, stat.S_IRWXU | stat.S_IRGRP |  stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH )
 
             # launch if we need to
-            if not self.options["dry_run"]:
-                # launch it - a few lines of code , add later
-                pass
-
+            if self.options["dry_run"]:
+                self.logWriter.info("slurmhpcJob : this is a dry run - not launching the job")
+            else:
+                slurm_submit = ["sbatch", "-v", array_jobfile_name]
+                self.logWriter.info("slurmhpcJob : launching using %s"%str(slurm_submit))
+                proc = subprocess.Popen(slurm_submit,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                (stdout, stderr) = proc.communicate()
+                submitreturncode = proc.returncode                
+                self.logWriter.info("slurmhpcJob : %s has returned (status %s) - here is its output (but now we wait for the real output !)"%(str(slurm_submit), submitreturncode))
+                self.logWriter.info("slurmhpcJob : stdout : \n%s"%stdout)
+                self.logWriter.info("slurmhpcJob : stderr : \n%s"%stderr)
+                    
             n_launched += n_launch
 
 

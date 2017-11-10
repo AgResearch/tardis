@@ -54,8 +54,8 @@ class hpcJob(object):
         self.jobHeld = False
         self.shell_script_template = None
 
-    def get_templates(self,default_job_template_name, default_shell_template_name):
-        (job_template, shell_script_template) = (None, None)
+    def get_templates(self,default_job_template_name, default_shell_template_name, default_runtime_config_template_name):
+        (job_template, shell_script_template, runtime_config_template) = (None, None, None)
         
         if self.controller.options is not None:
             if default_job_template_name is not None:
@@ -75,7 +75,7 @@ class hpcJob(object):
                     job_template = string.join(file(job_template_filename,"r"),"")
                     
                 if job_template is None:
-                    raise tardisException("condorhpcJob: Error job template is null after templating")
+                    raise tardisException("hpcJob: Error job template is null after templating")
                 job_template = string.Template(job_template)
 
 
@@ -96,10 +96,32 @@ class hpcJob(object):
                 shell_script_template = string.join(file(shell_template_filename,"r"),"")
                 
             if shell_script_template is None:
-                raise tardisException("condorhpcJob : Error shell template is null after templating")
+                raise tardisException("hpcJob : Error shell template is null after templating")
             shell_script_template = string.Template(shell_script_template)
 
-        return (job_template, shell_script_template)
+
+            # figure out run-time configuration code (You can specify one of the inbuilt configs by name, or
+            # supply a file containing a custom config)
+            if default_runtime_config_template_name is not None:
+                runtime_config_template_name = self.controller.options.get("runtime_config_name",None)
+                runtime_config_template_filename = self.controller.options.get("runtimeconfigsourcefile",None)        
+                if runtime_config_template_name is None and runtime_config_template_filename is None:
+                    #use the default 
+                    runtime_config_template_name = default_runtime_config_template_name
+                if runtime_config_template_name is not None and runtime_config_template_filename is not None:
+                    raise tardisException("error both runtime_config_template_name (%s) and runtime_config_template_filename (%s) defined - only define one of these"%(runtime_config_template_name,runtime_config_template_filename) )
+
+                if runtime_config_template_name is not None:
+                    runtime_config_template = self.controller.options.get(runtime_config_template_name, None)
+                else:
+                    runtime_config_template = string.join(file(runtime_config_template_filename,"r"),"")
+                    
+                if runtime_config_template is None:
+                    raise tardisException("hpcJob : Error config template is null after templating")
+                runtime_config_template = string.Template(runtime_config_template)
+
+
+        return (job_template, shell_script_template, runtime_config_template)
 
         
     def error(self,errorMessage):

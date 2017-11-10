@@ -92,14 +92,16 @@ def getDefaultEngineOptions():
        "dry_run" : False,
        "jobtemplatefile" : None,
        "shelltemplatefile" : None,
+       "runtimeconfigsourcefile" : None,
        "keep_conditioned_data" : False,
        "max_processes" : 20,
        "max_tasks" : 500,
        "hpctype" : "condor",
        "batonfile" : None,
        "valid_command_patterns" : "cat awk [t]*blast[nxp] bwa bowtie flexbar",  
-       "shell_template_name" : "condor_shell",
+       "shell_template_name" : None,
        "job_template_name" : None,
+       "runtime_config_name" : None,
        "fast_sequence_input_conditioning" : True,
        "condor_job" : """
 Executable     = $script
@@ -125,7 +127,7 @@ request_memory = 2000
 getenv         = True
 Queue
        """,
-       "slurm_array_job" : """#!/bin/bash -e
+       "slurm_array_job_old" : """#!/bin/bash -e
 
 #SBATCH -J $tardis_job_moniker
 #SBATCH -A $tardis_account_moniker        # Project Account
@@ -134,14 +136,31 @@ Queue
 #SBATCH --ntasks-per-socket=1      # number of processes allowed on a socket
 #SBATCH --cpus-per-task=4          #number of threads per process
 #SBATCH --hint=multithread         # enable hyperthreading
-#SBATCH --mem-per-cpu=8G
+#SBATCH --mem-per-cpu=1G
 #SBATCH --partition=inv-iranui     # Use nodes in the IRANUI partition
 #SBATCH --array=$array_start-$array_stop%50          # Iterate 1 to N, but only run up to 50 concurrent runs at once
-#SBATCH --error=$script-%A_%a.err
-#SBATCH --output=$script-%A_%a.out
+#SBATCH --error=$hpcdir/$tardis_job_moniker-%A_%a.err
+#SBATCH --output=$hpcdir/$tardis_job_moniker-%A_%a.out
 
 srun --cpu_bind=v,threads $hpcdir/slurm_array_shim.sh ${SLURM_ARRAY_TASK_ID}
        """,
+       "slurm_array_job" : """#!/bin/bash -e
+
+#SBATCH -J $tardis_job_moniker
+#SBATCH -A $tardis_account_moniker        # Project Account
+#SBATCH --time=20:00:00            # Walltime
+#SBATCH --ntasks=1                 # number of parallel processes
+#SBATCH --ntasks-per-socket=1      # number of processes allowed on a socket
+#SBATCH --cpus-per-task=4          #number of threads per process
+#SBATCH --hint=nomultithread         # enable hyperthreading
+#SBATCH --mem-per-cpu=1G
+#SBATCH --partition=inv-iranui     # Use nodes in the IRANUI partition
+#SBATCH --array=$array_start-$array_stop%50          # Iterate 1 to N, but only run up to 50 concurrent runs at once
+#SBATCH --error=$hpcdir/run-%A_%a.stderr
+#SBATCH --output=$hpcdir/run-%A_%a.stdout
+
+srun $hpcdir/slurm_array_shim.sh ${SLURM_ARRAY_TASK_ID}
+       """,       
        "slurm_array_shim" : """#!/bin/bash
 array_index=$1
 cd $hpcdir
@@ -186,22 +205,29 @@ cd $hpcdir
 $command
 """,
     "slurm_shell" : """#!/bin/sh
-# load any required environment modules
-$load_modules
-
-# activate any required conda environments
-$activate_condas
+started=`date`
+echo "started=$$started" >> $tlog
+cd $hpcdir
+# configure environment - e.g. activate conda packages, load moules
+# or other 
+$configure_runtime_environment
 
 # run the command
 $command
 
-# write exit code to tardis log
+# write datestamep and exit code to tardis log
 exit_code=$$?
-echo $$exit_code > $tlog
+ended=`date`
+echo "ended=$$ended" >> $tlog
+
+echo "exit_code=$$exit_code" >> $tlog
 
 # exit with the exit code we received from the command
 exit $$exit_code
-"""       
+""",
+   "basic_slurm_runtime_environment" : """
+source activate bifo-essential
+"""
     }
 
     # set values usinf checkAndSetOption e.g. to correctly type some
@@ -215,11 +241,9 @@ exit $$exit_code
     config.read(fileList)
 
     if not config.has_section("tardis_engine"):
-        print >> sys.stderr, "warning could not find valid config file  (.tardishrc) - using defaults"
-    else:
-
-
-        
+        #print >> sys.stderr, "warning could not find valid config file  (.tardishrc) - using defaults"
+        pass
+    else:    
         print >> sys.stderr, "updating defaults from config %s"% dict(config.items("tardis_engine"))
         configDict = dict(config.items("tardis_engine"))
 
@@ -424,7 +448,7 @@ local which results in each job being launched by tardis itself on the local mac
         
         if arg == "-w" : 
             checkAndSetOption(options, "in_workflow", True)
-        elif arg == "-v" : 
+        elif arg == "-dryrun" : 
             checkAndSetOption(options,"dry_run",True)
         elif arg == "-k" : 
             checkAndSetOption(options,"keep_conditioned_data", True            )
