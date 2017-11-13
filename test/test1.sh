@@ -11,5 +11,8 @@ rm -f results.out.gz
 
 #../tardis.py -dryrun -hpctype slurm  echo hello world \> /home/mccullocha/hello_from_slurm.txt       
 #../tardis.py -dryrun  -c 2  -hpctype slurm blastn -query _condition_fasta_input_test.fa -db /dataset/blastdata/active/mirror/rat.fna -out _condition_text_output_results.out 
-../tardis.py -c 2  -hpctype slurm blastn -query _condition_fasta_input_test.fa -db /dataset/blastdata/active/mirror/rat.fna -out _condition_text_output_results.out 
+#../tardis.py -dryrun -shell-include-file test_include.txt  -c 2  -hpctype slurm blastn -query _condition_fasta_input_test.fa -db /dataset/blastdata/active/mirror/rat.fna -out _condition_text_output_results.out 
+#../tardis.py -c 2  -hpctype slurm blastn -query _condition_fasta_input_test.fa -db /dataset/blastdata/active/mirror/rat.fna -out _condition_text_output_results.out 
+#../tardis.py -shell-include-file test_include.txt  -c 2  -hpctype slurm blastn -query _condition_fasta_input_test.fa -db /dataset/blastdata/active/mirror/rat.fna -out _condition_text_output_results.out 
+#../tardis.py -shell-include-file test_include.txt -job-file array_job1.txt  -c 2  -hpctype slurm blastn -query _condition_fasta_input_test.fa -db /dataset/blastdata/active/mirror/rat.fna -out _condition_text_output_results.out 
 

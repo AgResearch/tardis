@@ -70,8 +70,10 @@ class hpcJob(object):
                     raise tardisException("error both job_template_name (%s) and job_template_filename (%s) defined - only define one of these"%(job_template_name,job_template_filename) )
 
                 if job_template_name is not None:
-                    job_template = self.controller.options.get(job_template_name, None)
+                    job_template = self.controller.options.get(job_template_name, None)   
                 else:
+                    if not os.path.isfile(job_template_filename):
+                        raise tardisException("error job template file %s not found"%job_template_filename )    
                     job_template = string.join(file(job_template_filename,"r"),"")
                     
                 if job_template is None:

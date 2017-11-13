@@ -4,10 +4,9 @@ from job import hpc
 class slurmhpcJob(hpc.hpcJob):
     def __init__(self, controller, command = [],job_template= None, shell_script_template = None):
         super(slurmhpcJob, self).__init__(controller,command)
-
+        
         (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates(None, "slurm_shell", "basic_slurm_runtime_environment")
 
-        
 
     @classmethod
     def getUnsubmittedJobs(cls, jobList):

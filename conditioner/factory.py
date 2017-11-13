@@ -16,7 +16,7 @@ import job.slurm as slurm
 import job.hpc as hpc
 
 global SLURM_MAXARRAYSIZE
-SLURM_MAXARRAYSIZE=2  # for testing - make 1000 for real
+SLURM_MAXARRAYSIZE=500  # for testing - make 1000 for real
 
 
 class hpcConditioner(object):
@@ -89,13 +89,34 @@ srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}
         f.close()
         os.chmod(shim_file_name, stat.S_IRWXU | stat.S_IRGRP |  stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH )
 
-        # write one or more array job files 
-        slurm_array_job = string.Template(self.options.get("slurm_array_job",None))
+        # write one or more array job files
+        # figure out a job template from the options. (You can specify one of the inbuilt templates by name, or
+        # supply a file containing a custom template). If nothign supplied at all we use hard coded default 
+        job_template_name = self.options.get("job_template_name",None)
+        job_template_filename = self.options.get("jobtemplatefile",None)        
+        if job_template_name is None and job_template_filename is None:
+            #use the default condor job template
+            job_template_name = "default_slurm_array_job"
+            
+        if job_template_name is not None and job_template_filename is not None:
+            raise tardisException("error both job_template_name (%s) and job_template_filename (%s) defined - only define one of these"%(job_template_name,job_template_filename) )
+
+        if job_template_name is not None:
+            job_template = self.options.get(job_template_name, None)   
+        else:
+            if not os.path.isfile(job_template_filename):
+                raise tardisException("error job template file %s not found"%job_template_filename )    
+            job_template = string.join(file(job_template_filename,"r"),"")
+            
+        if job_template is None:
+            raise tardisException("hpcConditioner: Error job template is null after templating")
+        job_template = string.Template(job_template)        
+        
         n_launched = 0
         while n_launched < len(self.jobList):
             n_launch = min(SLURM_MAXARRAYSIZE, len(self.jobList) - n_launched)
         
-            arraycode  = slurm_array_job.safe_substitute(tardis_job_moniker=self.toolargv[0], tardis_account_moniker=os.environ['LOGNAME'],\
+            arraycode  = job_template.safe_substitute(tardis_job_moniker=self.toolargv[0], tardis_account_moniker=os.environ['LOGNAME'],\
                                                                  array_start=str(n_launched+1),array_stop=str(n_launched+n_launch),\
                                                                  hpcdir=self.workingRoot)
             array_jobfile_name = os.path.join(self.workingRoot, "array_%d-%d.slurm"%(n_launched+1,n_launched+n_launch))
@@ -445,7 +466,7 @@ srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}
             match = re.search(data.dataConditioner.throughput_directive_pattern, self.toolargv[i])
             if match != None:
                 self.logWriter.info("getConditionedCommands : adding a generic throughput conditioner")
-                commandGen[i] = data.dataConditioner.addThroughputConditioner(dcPrototype,match.groups()[0], conditioningPattern = dataConditioner.throughput_directive_pattern,\
+                commandGen[i] = data.dataConditioner.addThroughputConditioner(dcPrototype,match.groups()[0], conditioningPattern = data.dataConditioner.throughput_directive_pattern,\
                                                                          conditioningWord = self.toolargv[i])
                 continue
             

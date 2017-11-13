@@ -78,7 +78,7 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
                 c.retryJobSubmission(maxRetries = 1, retryPause = 1)
 
     # for some hpc types (e.g. slurm array jobs) , runCommand does not actually run the command, it
-    # just sets up the comamnd.
+    # just sets up the comamnd. Thse are then all batch submitted here : 
     c.launchArrayJobs()
     
                     

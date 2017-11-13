@@ -144,7 +144,7 @@ Queue
 
 srun --cpu_bind=v,threads $hpcdir/slurm_array_shim.sh ${SLURM_ARRAY_TASK_ID}
        """,
-       "slurm_array_job" : """#!/bin/bash -e
+       "default_slurm_array_job" : """#!/bin/bash -e
 
 #SBATCH -J $tardis_job_moniker
 #SBATCH -A $tardis_account_moniker        # Project Account
@@ -460,8 +460,12 @@ local which results in each job being launched by tardis itself on the local mac
             checkAndSetOption(options,"from_record", args.pop(0))
         elif arg == "-to" : 
             checkAndSetOption(options,"to_record", args.pop(0))            
-        elif arg == "-t" : 
+        elif arg == "-job-file" : 
             checkAndSetOption(options,"jobtemplatefile", args.pop(0))
+        elif arg == "-job-template-name" : 
+            checkAndSetOption(options,"job_template_name", args.pop(0))
+        elif arg == "-shell-include-file" : 
+            checkAndSetOption(options,"runtimeconfigsourcefile", args.pop(0))            
         elif arg == "-d" : 
             checkAndSetOption(options,"rootdir",args.pop(0))
         elif arg == "-hpctype" :
