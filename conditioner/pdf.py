@@ -70,7 +70,7 @@ class pdfDataConditioner(data.dataConditioner):
         # gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=finished.pdf /dataset/reseq_wf_dev/scratch/temp/inbfop03.agresearch.co.nz/tardis_rbB6Qe/test.fastq.trimmed_segments.hist.pdf 
         #                                                                     /dataset/reseq_wf_dev/scratch/temp/inbfop03.agresearch.co.nz/tardis_E0PG9W/test.fastq.trimmed_segments.hist.pdf 
         
-        dataGluingCommand = ["gs", "-dBATCH", "-dNOPAUSE", "-q", "-sDEVICE=pdfwrite", "-sOutputFile=%s"%self.outputFileName ] + filesToProcess 
+        dataGluingCommand = ["tardis.py" , "-q","gs", "-dBATCH", "-dNOPAUSE", "-q", "-sDEVICE=pdfwrite", "-sOutputFile=%s"%self.outputFileName ] + filesToProcess 
         self.logWriter.info("executing %s"%str(dataGluingCommand))
         proc = subprocess.Popen(dataGluingCommand,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         (stdout, stderr) = proc.communicate()

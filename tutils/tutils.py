@@ -94,6 +94,7 @@ def getDefaultEngineOptions():
        "shelltemplatefile" : None,
        "runtimeconfigsourcefile" : None,
        "keep_conditioned_data" : False,
+       "quiet" : False,
        "max_processes" : 20,
        "max_tasks" : 500,
        "hpctype" : "condor",
@@ -153,7 +154,7 @@ srun --cpu_bind=v,threads $hpcdir/slurm_array_shim.sh ${SLURM_ARRAY_TASK_ID}
 #SBATCH --ntasks-per-socket=1      # number of processes allowed on a socket
 #SBATCH --cpus-per-task=4          #number of threads per process
 #SBATCH --hint=nomultithread         # enable hyperthreading
-#SBATCH --mem-per-cpu=1G
+#SBATCH --mem-per-cpu=4G
 #SBATCH --partition=inv-iranui     # Use nodes in the IRANUI partition
 #SBATCH --array=$array_start-$array_stop%50          # Iterate 1 to N, but only run up to 50 concurrent runs at once
 #SBATCH --error=$hpcdir/run-%A_%a.stderr
@@ -205,25 +206,35 @@ cd $hpcdir
 $command
 """,
     "slurm_shell" : """#!/bin/sh
-started=`date`
-echo "started=$$started" >> $tlog
+job_started=`date`
+echo "job_started=$$job_started" >> $tlog
+echo "
+
+# run the command, logging the environment to help audit what was actually run
+
+environment:
+---- begin environment listing ----" >> $tlog
 cd $hpcdir
 # configure environment - e.g. activate conda packages, load moules
 # or other 
 $configure_runtime_environment
 
-# run the command
+env >> $tlog
+echo "
+---- end environment listing ----" >> $tlog
+
 $command
 
 # write datestamep and exit code to tardis log
-exit_code=$$?
-ended=`date`
-echo "ended=$$ended" >> $tlog
+job_exit_code=$$?
+job_ended=`date`
 
-echo "exit_code=$$exit_code" >> $tlog
+echo "job_ended=$$job_ended" >> $tlog
+
+echo "job_exit_code=$$job_exit_code" >> $tlog
 
 # exit with the exit code we received from the command
-exit $$exit_code
+exit $$job_exit_code
 """,
    "basic_slurm_runtime_environment" : """
 source activate bifo-essential
@@ -244,7 +255,7 @@ source activate bifo-essential
         #print >> sys.stderr, "warning could not find valid config file  (.tardishrc) - using defaults"
         pass
     else:    
-        print >> sys.stderr, "updating defaults from config %s"% dict(config.items("tardis_engine"))
+        #print >> sys.stderr, "updating defaults from config %s"% dict(config.items("tardis_engine"))
         configDict = dict(config.items("tardis_engine"))
 
         # check for function definitions - if any found get the code. Note however only those
@@ -315,6 +326,8 @@ def checkAndSetOption(options, name, value):
     
     if name == "chunksize" : 
         options[name] = int(value)
+    elif name == "quiet" : 
+        options[name] = value
     elif name == "samplerate" : 
         options[name] = float(value)
     elif name == "from_record" : 
@@ -451,7 +464,7 @@ local which results in each job being launched by tardis itself on the local mac
         elif arg == "-dryrun" : 
             checkAndSetOption(options,"dry_run",True)
         elif arg == "-k" : 
-            checkAndSetOption(options,"keep_conditioned_data", True            )
+            checkAndSetOption(options,"keep_conditioned_data", True )
         elif arg == "-c" : 
             checkAndSetOption(options,"chunksize", args.pop(0))
         elif arg == "-s" : 
@@ -468,6 +481,8 @@ local which results in each job being launched by tardis itself on the local mac
             checkAndSetOption(options,"runtimeconfigsourcefile", args.pop(0))            
         elif arg == "-d" : 
             checkAndSetOption(options,"rootdir",args.pop(0))
+        elif arg == "-q" : 
+            checkAndSetOption(options,"quiet", True)            
         elif arg == "-hpctype" :
             checkAndSetOption(options,"hpctype",args.pop(0))
         elif arg == "-batonfile" :

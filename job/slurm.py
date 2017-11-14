@@ -96,11 +96,11 @@ class slurmhpcJob(hpc.hpcJob):
         """
         with open(self.logname,"r") as r:
             footprint = {}
-            footprint.update( ( re.split("=", record.strip()) for record in r ))
+            footprint.update( ( re.split("=", record.strip()) for record in r if len(re.split("=", record)) == 2))
 
-            if "ended" in footprint:
+            if "job_ended" in footprint:
                 self.logWriter.info("slurmhpcJob : this job (%d) looks finished"%self.jobNumber)
-                self.returncode = int(footprint["exit_code"])
+                self.returncode = int(footprint["job_exit_code"])
                 if self.returncode != 0:
                     self.error("job number %d returned %d - setting error"%(self.jobNumber, self.returncode))
           

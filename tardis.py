@@ -28,7 +28,8 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
 
 
     #print "using %s"%str(options)
-    print "tool args = %s"%str(toolargs)
+    if not options["quiet"]:
+        print "tool args = %s"%str(toolargs)
 
 
     # set up logging and working folder for this run
@@ -39,8 +40,10 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
     if msg_for_log is not None:
         logger.info(msg_for_log)
 
-                                                              
-    print "tardis.py : logging this session to %s"%workingRoot
+
+    if not options["quiet"]:                                                     
+        print "tardis.py : logging this session to %s"%workingRoot
+        
     c = factory.hpcConditioner(logger,workingRoot,options,toolargs)
     c.options = options
     c.logWriter.info("tardis.py : logging this session to %s"%workingRoot)        
@@ -166,22 +169,28 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
 
 
     if dcPrototype.getDataResultState() == data.dataConditioner.OK and c.getJobResultState()  == hpc.hpcJob.OK :
-        print "tardis.py : done logging this session to %s , no errors detected"%workingRoot
+        if not options["quiet"]:
+            print "tardis.py : done logging this session to %s , no errors detected"%workingRoot
         if len(c.getJobResultStateDescription()) > 0:
-            print c.getJobResultStateDescription()
-            print >> stderr, c.getJobResultStateDescription()        
+            if not options["quiet"]:
+                print c.getJobResultStateDescription()
+                print >> stderr, c.getJobResultStateDescription()        
         if len(dcPrototype.getDataResultStateDescription()) > 0:
-            print dcPrototype.getDataResultStateDescription()
-            print >> stderr, dcPrototype.getDataResultStateDescription()
+            if not options["quiet"]:
+                print dcPrototype.getDataResultStateDescription()
+                print >> stderr, dcPrototype.getDataResultStateDescription()
         return 0
     else:
-        print "tardis.py : done logging this session to %s. NOTE : some errors were logged"%workingRoot
+        if not options["quiet"]:
+            print "tardis.py : done logging this session to %s. NOTE : some errors were logged"%workingRoot
         if len(c.getJobResultStateDescription()) > 0:
-            print c.getJobResultStateDescription()        
-            print >> stderr, c.getJobResultStateDescription()        
+            if not options["quiet"]:
+                print c.getJobResultStateDescription()
+                print >> stderr, c.getJobResultStateDescription()        
         if len(dcPrototype.getDataResultStateDescription()) > 0:
-            print dcPrototype.getDataResultStateDescription()        
-            print >> stderr, dcPrototype.getDataResultStateDescription()
+            if not options["quiet"]:
+                print dcPrototype.getDataResultStateDescription()        
+                print >> stderr, dcPrototype.getDataResultStateDescription()
             
         return 2
 

@@ -1,4 +1,7 @@
-import conditioner.data as data 
+import os, subprocess
+
+import conditioner.data as data
+import tutils.tutils as tutils
 
 class samDataConditioner(data.dataConditioner):
     #output_directive_pattern = "_condition_sam_output_(\S+)"   # generates BAM output 
@@ -55,9 +58,13 @@ class samDataConditioner(data.dataConditioner):
         samHeader = None
         
         for fileName in filesToProcess:
+            # sam "merge" step - concatenate all of the SAM files. Note that we could do this more efficiently
+            # via launching a single concatenate command of some kind - however this is not scalable to a combination
+            # of many files , and long paths , as it may overflow the command buffer. Hence the
+            # less efficient approach of concatenate one at a time, in a loop  
 
             # get the header
-            headerCommand = ["samtools",  "view" , "-H", "-S" , fileName]
+            headerCommand = ["tardis.py" , "-q", "-hpctype", self.options["hpctype"], "samtools",  "view" , "-H", "-S" , fileName]
             self.logWriter.info("starting %s"%headerCommand)
             hproc = subprocess.Popen(headerCommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -82,12 +89,12 @@ class samDataConditioner(data.dataConditioner):
                 
             # else check this header is the same as the cached one - if not fail
             else:
-                if not SAMHeadersEqual(samHeader,hstdout):
+                if not tutils.SAMHeadersEqual(samHeader,hstdout):
                     self.error("error - inconsistent headers encoutered this header : %s  \n\n --- ....versus this header ....--- \n\n%s"%(samHeader, hstdout))
                     break
 
             # view the file (without header), stdout = output file
-            viewCommand = ["samtools",  "view" , "-S", fileName]
+            viewCommand = ["tardis.py", "-q", "-hpctype", self.options["hpctype"], "samtools",  "view" , "-S", fileName]
             self.logWriter.info("starting %s output to %s "%(str(viewCommand), self.outputFileName))
             vproc = subprocess.Popen(viewCommand, stdout=samfile, stderr=subprocess.PIPE)
             
@@ -106,30 +113,26 @@ class samDataConditioner(data.dataConditioner):
         samfile.close()
 
         if self.compressionConditioning:
-            if dataConditioner.state == dataConditioner.OK:
+            if data.dataConditioner.state == data.dataConditioner.OK:
                 self.logWriter.info("compressing sam to sorted bam (compressionConditioning = True)")
 
-                bamCommand = ["samtools","view","-h","-S","-b",self.outputFileName]
-                sortCommand = ["samtools","sort","-",self.outputFileName] # will write [self.outputFileName].bam
+                bamCommand = ["tardis.py", "-q", "-hpctype", self.options["hpctype"], "samtools","view","-h","-S","-b",self.outputFileName, "|",\
+                              "samtools","sort","-", "-T" , "_tardis_sam_sort_tmp" , "-o" , self.outputFileName] # will write outfilebase.bam
 
-                self.logWriter.info("starting %s piping to %s "%(str(bamCommand), str(sortCommand)))
-                sproc = subprocess.Popen(sortCommand, stdin=subprocess.PIPE, stdout = subprocess.PIPE, stderr=subprocess.PIPE)
-                bproc = subprocess.Popen(bamCommand, stdout = sproc.stdin, stderr=subprocess.PIPE)
+                self.logWriter.info("starting %s "%str(bamCommand))
+                bproc = subprocess.Popen(bamCommand, stdout = subprocess.PIPE, stderr=subprocess.PIPE)
 
-                (sstdout, sstderr) = sproc.communicate()
-                self.logWriter.info("sort stdout : \n%s"%sstdout)
-                self.logWriter.info("sort stderr : \n%s"%sstderr)
-                
                 (bstdout, bstderr) = bproc.communicate()
                 self.logWriter.info("bam stdout : \n%s"%bstdout)
                 self.logWriter.info("bam stderr : \n%s"%bstderr)
 
-                if bproc.returncode != 0 or sproc.returncode != 0:
+                if bproc.returncode != 0:
                     self.error("bam compression or sort appears to have failed")
-                else:
-                    self.logWriter.info("unconditionOutput : finished sam to bam compression and sort - removing sam file %s"%self.outputFileName)
-                    # remove the sam file
-                    os.remove(self.outputFileName)
+                # this was how things went with an earlier verson of samtools
+                #else:
+                #    self.logWriter.info("unconditionOutput : finished sam to bam compression and sort - removing sam file %s"%self.outputFileName)
+                #    # remove the sam file
+                #    os.remove(self.outputFileName)
             
             else:
                 self.logWriter.info("(skipped bam compression and sort as previous steps failed)")

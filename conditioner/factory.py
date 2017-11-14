@@ -99,17 +99,17 @@ srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}
             job_template_name = "default_slurm_array_job"
             
         if job_template_name is not None and job_template_filename is not None:
-            raise tardisException("error both job_template_name (%s) and job_template_filename (%s) defined - only define one of these"%(job_template_name,job_template_filename) )
+            raise tutils.tardisException("error both job_template_name (%s) and job_template_filename (%s) defined - only define one of these"%(job_template_name,job_template_filename) )
 
         if job_template_name is not None:
             job_template = self.options.get(job_template_name, None)   
         else:
             if not os.path.isfile(job_template_filename):
-                raise tardisException("error job template file %s not found"%job_template_filename )    
+                raise tutils.tardisException("error job template file %s not found"%job_template_filename )    
             job_template = string.join(file(job_template_filename,"r"),"")
             
         if job_template is None:
-            raise tardisException("hpcConditioner: Error job template is null after templating")
+            raise tutils.tardisException("hpcConditioner: Error job template is null after templating")
         job_template = string.Template(job_template)        
         
         n_launched = 0
@@ -134,11 +134,18 @@ srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}
                 self.logWriter.info("slurmhpcJob : launching using %s"%str(slurm_submit))
                 proc = subprocess.Popen(slurm_submit,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 (stdout, stderr) = proc.communicate()
-                submitreturncode = proc.returncode                
-                self.logWriter.info("slurmhpcJob : %s has returned (status %s) - here is its output (but now we wait for the real output !)"%(str(slurm_submit), submitreturncode))
-                self.logWriter.info("slurmhpcJob : stdout : \n%s"%stdout)
-                self.logWriter.info("slurmhpcJob : stderr : \n%s"%stderr)
-                    
+                submitreturncode = proc.returncode
+                if submitreturncode == 0:
+                    self.logWriter.info("slurmhpcJob : %s has returned (status %s) - here is its output (but now we wait for the real output !)"%(str(slurm_submit), submitreturncode))
+                    self.logWriter.info("slurmhpcJob : stdout : \n%s"%stdout)
+                    self.logWriter.info("slurmhpcJob : stderr : \n%s"%stderr)
+                else:
+                    self.logWriter.info("slurmhpcJob : error %s has returned status %s !)"%(str(slurm_submit), submitreturncode))
+                    self.logWriter.info("slurmhpcJob : stdout : \n%s"%stdout)
+                    self.logWriter.info("slurmhpcJob : stderr : \n%s"%stderr)
+                    self.logWriter.info("slurmhpcJob : giving up, the array job spec may have bugs ?")
+                    raise tutils.tardisException("hpcConditioner : %s"%stderr)
+
             n_launched += n_launch
 
 

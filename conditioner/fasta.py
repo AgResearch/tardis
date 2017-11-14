@@ -1,3 +1,4 @@
+import itertools, re
 import conditioner.data as data
 import conditioner.text as text
 
