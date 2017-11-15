@@ -1,3 +1,5 @@
+import os
+
 import conditioner.data as data
 
 class waitDataConditioner(data.dataConditioner):
