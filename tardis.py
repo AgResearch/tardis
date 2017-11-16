@@ -43,6 +43,8 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
 
     if not options["quiet"]:                                                     
         print "tardis.py : logging this session to %s"%workingRoot
+
+    logger.info("tardis options : " + str(options))
         
     c = factory.hpcConditioner(logger,workingRoot,options,toolargs)
     c.options = options

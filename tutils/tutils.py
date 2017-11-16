@@ -84,6 +84,7 @@ def getDefaultEngineOptions():
     defaults =  {
        "rootdir" : os.getcwd(),
        "workdir_is_rootdir" : False,
+       "tardish_rc_found" : False,
        "in_workflow" : True, 
        "chunksize" : -1,   # -1 means it will be calculated to yield <= max_tasks
        "samplerate" : None,
@@ -255,6 +256,7 @@ source activate bifo-essential
         #print >> sys.stderr, "warning could not find valid config file  (.tardishrc) - using defaults"
         pass
     else:    
+        defaults["tardish_rc_found"] = True 
         #print >> sys.stderr, "updating defaults from config %s"% dict(config.items("tardis_engine"))
         configDict = dict(config.items("tardis_engine"))
 
