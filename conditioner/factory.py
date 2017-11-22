@@ -456,7 +456,7 @@ srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}
             if match != None:
                 self.logWriter.info("getConditionedCommands : adding a wait product conditioner")
                 commandGen[i] = wait.waitDataConditioner.addOutputUnconditioner(dcPrototype,match.groups()[0], conditioningWord = self.toolargv[i],\
-                                                        conditioningPattern = waitDataConditioner.product_directive_pattern,\
+                                                        conditioningPattern = wait.waitDataConditioner.product_directive_pattern,\
                                                         commandConditioning = False, compressionConditioning = False)
                 continue
 

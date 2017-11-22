@@ -171,25 +171,31 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
 
 
     if dcPrototype.getDataResultState() == data.dataConditioner.OK and c.getJobResultState()  == hpc.hpcJob.OK :
+        c.logWriter.info("tardis.py : done logging this session to %s , no errors detected"%workingRoot)
         if not options["quiet"]:
             print "tardis.py : done logging this session to %s , no errors detected"%workingRoot
         if len(c.getJobResultStateDescription()) > 0:
+            c.logWriter.info(c.getJobResultStateDescription())
             if not options["quiet"]:
                 print c.getJobResultStateDescription()
                 print >> stderr, c.getJobResultStateDescription()        
         if len(dcPrototype.getDataResultStateDescription()) > 0:
+            c.logWriter.info(dcPrototype.getDataResultStateDescription())
             if not options["quiet"]:
                 print dcPrototype.getDataResultStateDescription()
                 print >> stderr, dcPrototype.getDataResultStateDescription()
         return 0
     else:
+        c.logWriter.info("tardis.py : done logging this session to %s. NOTE : some errors were logged"%workingRoot)
         if not options["quiet"]:
             print "tardis.py : done logging this session to %s. NOTE : some errors were logged"%workingRoot
         if len(c.getJobResultStateDescription()) > 0:
+            c.logWriter.info(c.getJobResultStateDescription())
             if not options["quiet"]:
                 print c.getJobResultStateDescription()
                 print >> stderr, c.getJobResultStateDescription()        
         if len(dcPrototype.getDataResultStateDescription()) > 0:
+            c.logWriter.info(dcPrototype.getDataResultStateDescription())
             if not options["quiet"]:
                 print dcPrototype.getDataResultStateDescription()        
                 print >> stderr, dcPrototype.getDataResultStateDescription()

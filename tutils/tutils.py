@@ -210,29 +210,33 @@ $command
 job_started=`date`
 echo "job_started=$$job_started" >> $tlog
 echo "
+---- begin environment listing (pre config)----" >> $tlog
+env >> $tlog
+echo "
+---- end environment listing (pre config)----" >> $tlog
 
-# run the command, logging the environment to help audit what was actually run
 
-environment:
----- begin environment listing ----" >> $tlog
 cd $hpcdir
 # configure environment - e.g. activate conda packages, load moules
 # or other 
+export PATH="/stash/miniconda3/bin:$PATH"  # ensure we know how to use conda even if launched from vanilla node
 $configure_runtime_environment
 
+echo "
+---- begin environment listing (post config)----" >> $tlog
 env >> $tlog
 echo "
----- end environment listing ----" >> $tlog
+---- end environment listing (post config)----" >> $tlog
 
+# run the command
 $command
 
 # write datestamep and exit code to tardis log
 job_exit_code=$$?
 job_ended=`date`
 
-echo "job_ended=$$job_ended" >> $tlog
-
 echo "job_exit_code=$$job_exit_code" >> $tlog
+echo "job_ended=$$job_ended" >> $tlog   #this must go last, after exit code (to avoid race condition as poll is for job_ended)
 
 # exit with the exit code we received from the command
 exit $$job_exit_code
@@ -488,7 +492,7 @@ local which results in each job being launched by tardis itself on the local mac
         elif arg == "-hpctype" :
             checkAndSetOption(options,"hpctype",args.pop(0))
         elif arg == "-batonfile" :
-            checkAndSetOption(options,"batonfile",args.pop(0))            
+            checkAndSetOption(options,"batonfile",args.pop(0))
         elif arg == "-h":
             raise Usage(usage)
         elif " " in arg:

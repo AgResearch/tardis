@@ -53,7 +53,7 @@ class samDataConditioner(data.dataConditioner):
         # open the output file
         if os.path.exists(self.outputFileName):
             self.logWriter.info("warning- %s already exists will overwrite"%self.outputFileName) # file will already exist if running in Galaxy
-        samfile = open(self.outputFileName, "w")
+        #samfile = open(self.outputFileName, "w")
 
         samHeader = None
         
@@ -64,8 +64,8 @@ class samDataConditioner(data.dataConditioner):
             # less efficient approach of concatenate one at a time, in a loop  
 
             # get the header
-            headerCommand = ["tardis.py" , "-q", "-hpctype", self.options["hpctype"], "samtools",  "view" , "-H", "-S" , fileName]
-            self.logWriter.info("starting %s"%headerCommand)
+            headerCommand = ["tardis.py" , "-d", self.options["rootdir"], "-q", "-hpctype", self.options["hpctype"], "samtools",  "view" , "-H", "-S" , fileName]
+            self.logWriter.info("starting (recursive tardis) %s"%headerCommand)
             hproc = subprocess.Popen(headerCommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             (hstdout, hstderr) = hproc.communicate()
@@ -82,10 +82,11 @@ class samDataConditioner(data.dataConditioner):
             if samHeader is None:
                 samHeader = hstdout
                 if self.conditioningPattern != self.headlessoutput_directive_pattern:
-                    samfile.write(samHeader)
+                    with open(self.outputFileName, "w") as samfile:
+                        samfile.write(samHeader)
                     
-                samfile.close()
-                samfile = open(self.outputFileName, "a")
+                #samfile.close()
+                #samfile = open(self.outputFileName, "a")
                 
             # else check this header is the same as the cached one - if not fail
             else:
@@ -94,19 +95,23 @@ class samDataConditioner(data.dataConditioner):
                     break
 
             # view the file (without header), stdout = output file
-            viewCommand = ["tardis.py", "-q", "-hpctype", self.options["hpctype"], "samtools",  "view" , "-S", fileName]
-            self.logWriter.info("starting %s output to %s "%(str(viewCommand), self.outputFileName))
-            vproc = subprocess.Popen(viewCommand, stdout=samfile, stderr=subprocess.PIPE)
+            #viewCommand = ["tardis.py", "-d", self.options["rootdir"], "-q", "-hpctype", self.options["hpctype"], "samtools",  "view" , "-S", fileName]
+            viewCommand = ["tardis.py", "-d", self.options["rootdir"], "-q", "-hpctype", self.options["hpctype"], "samtools",  "view" , "-S", fileName, ">>" , self.outputFileName]
+
+            self.logWriter.info("starting (recursive tardis) %s "%str(viewCommand))
+            #vproc = subprocess.Popen(viewCommand, stdout=samfile, stderr=subprocess.PIPE)
+            vproc = subprocess.Popen(viewCommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            
             
             (vstdout, vstderr) = vproc.communicate()
             self.logWriter.info("view stdout : \n%s"%vstdout)
             self.logWriter.info("view stderr : \n%s"%vstderr)
 
-            samfile.close()
-            samfile = open(self.outputFileName, "a")            
+            #samfile.close()
+            #samfile = open(self.outputFileName, "a")            
 
             if vproc.returncode != 0:
-                self.error("SAM listing of %s appears to have failed"%fileName)
+                self.error("SAM listing of %s appears to have failed, exit code %d, error text as above"%(fileName, vproc.returncode))
                 break
 
         self.logWriter.info("unconditionOutput : finished SAM merge step")
@@ -116,10 +121,10 @@ class samDataConditioner(data.dataConditioner):
             if data.dataConditioner.state == data.dataConditioner.OK:
                 self.logWriter.info("compressing sam to sorted bam (compressionConditioning = True)")
 
-                bamCommand = ["tardis.py", "-q", "-hpctype", self.options["hpctype"], "samtools","view","-h","-S","-b",self.outputFileName, "|",\
+                bamCommand = ["tardis.py", "-d", self.options["rootdir"], "-q", "-hpctype", self.options["hpctype"], "samtools","view","-h","-S","-b",self.outputFileName, "|",\
                               "samtools","sort","-", "-T" , "_tardis_sam_sort_tmp" , "-o" , self.outputFileName] # will write outfilebase.bam
 
-                self.logWriter.info("starting %s "%str(bamCommand))
+                self.logWriter.info("starting (recursive tardis) %s "%str(bamCommand))
                 bproc = subprocess.Popen(bamCommand, stdout = subprocess.PIPE, stderr=subprocess.PIPE)
 
                 (bstdout, bstderr) = bproc.communicate()
