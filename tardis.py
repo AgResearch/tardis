@@ -45,7 +45,7 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
         print "tardis.py : logging this session to %s"%workingRoot
 
     logger.info("tardis options : " + str(options))
-        
+    
     c = factory.hpcConditioner(logger,workingRoot,options,toolargs)
     c.options = options
     c.logWriter.info("tardis.py : logging this session to %s"%workingRoot)        
@@ -113,7 +113,7 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
                 # retry jobs here in case we are rate limited
                 if len(c.getUnsubmittedJobs()) > 0:
                     c.logWriter.info("(there are %d partially submitted jobs)"%len(c.getUnsubmittedJobs()))
-                    c.retryJobSubmission(maxRetries = SUBMIT_RETRIES, retryPause = SUBMIT_RETRY_PAUSE)
+                    c.retryJobSubmission(maxRetries = hpc.hpcJob.SUBMIT_RETRIES, retryPause = hpc.hpcJob.SUBMIT_RETRY_PAUSE)
 
                 sent_count = 0 # count how many jobs just finished 
                 for unsentJob in unsentJobs:
@@ -184,7 +184,7 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
             if not options["quiet"]:
                 print dcPrototype.getDataResultStateDescription()
                 print >> stderr, dcPrototype.getDataResultStateDescription()
-        return 0
+        return (0,c)
     else:
         c.logWriter.info("tardis.py : done logging this session to %s. NOTE : some errors were logged"%workingRoot)
         if not options["quiet"]:
@@ -200,7 +200,7 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
                 print dcPrototype.getDataResultStateDescription()        
                 print >> stderr, dcPrototype.getDataResultStateDescription()
             
-        return 2
+        return (2,c)
 
 
         
@@ -219,12 +219,10 @@ def main(argv=None):
         print >> sys.stderr, msg
         return 2
         
-    
-
-    exit_code = run(toolargs,options, checkCommandIsValid = False)
+    (exit_code, factory) = run(toolargs,options, checkCommandIsValid = False)
 
     if options["batonfile"] is not None:
-        pass_the_baton(options["batonfile"], exit_code)
+        tutils.pass_the_baton(options["batonfile"], exit_code, factory.logWriter)
 
     return exit_code 
     
