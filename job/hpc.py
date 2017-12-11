@@ -18,6 +18,10 @@ class hpcJob(object):
     POLL_INTERVAL = 5 # seconds
     POLL_DURATION = 14 * 24 * 60 * 60 # two weeks
 
+    MAX_DIMENSION = 999999 # the maximum number of chunks we will allow  - prevent incoherent chunking options generating huge numbers of fragments
+    SUBMIT_RETRIES = 2
+    SUBMIT_RETRY_PAUSE = 30
+
     @classmethod
     def stateAND(cls, state1, state2):
         """

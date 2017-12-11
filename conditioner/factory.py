@@ -1,4 +1,4 @@
-import logging,os, itertools, re, string, stat , subprocess
+import logging,os, itertools, re, string, stat , subprocess, time
 import tutils.tutils as tutils
 import conditioner.fastq as fastq
 import conditioner.fasta as fasta

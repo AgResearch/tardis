@@ -10,7 +10,7 @@ class localhpcJob(hpc.hpcJob):
             
         self.workerList  = {} # this will be overwritten by a shared worker list when the new object is inducted
 
-        (junk, self.shell_script_template, junk) = self.get_templates(None, "local_shell", None)
+        (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates(None, "local_shell", "basic_local_runtime_environment")
 
     def induct(self,other):
         super(localhpcJob,self).induct(other)
@@ -105,7 +105,10 @@ class localhpcJob(hpc.hpcJob):
 
             # set up the shell scriptfile(s) (one per chunk) (unless this is a rerun in which case its already been done)
             if self.submitCount == 0:
-                shellcode = self.shell_script_template.safe_substitute(hpcdir=self.workingRoot,command=string.join(self.command," "))
+                runtime_environmentcode = self.runtime_config_template.safe_substitute() # currently no templating actually done here                
+                shellcode = self.shell_script_template.safe_substitute(configure_runtime_environment=runtime_environmentcode,\
+                                                                       hpcdir=self.workingRoot,command=string.join(self.command," "),\
+                                                                       startdir=self.controller.options["startdir"])
                 self.scriptfilename = os.path.join(self.workingRoot, "run%d.sh"%self.jobNumber)
                 if os.path.isfile(self.scriptfilename):
                     raise tardisException("error %s already exists"%self.scriptfilename)

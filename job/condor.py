@@ -7,7 +7,7 @@ class condorhpcJob(hpc.hpcJob):
 
         self.job_template = None
 
-        (self.job_template, self.shell_script_template, junk) = self.get_templates("condor_job", "condor_shell", None)
+        (self.job_template, self.shell_script_template, self.runtime_config_template) = self.get_templates("condor_job", "condor_shell", "basic_condor_runtime_environment")
 
 
 
@@ -61,7 +61,10 @@ class condorhpcJob(hpc.hpcJob):
 
             # set up the shell scriptfile(s) (one per chunk) (unless this is a rerun in which case its already been done)
             if self.submitCount == 0:
-                shellcode = self.shell_script_template.safe_substitute(hpcdir=self.workingRoot,command=string.join(self.command," "))
+                runtime_environmentcode = self.runtime_config_template.safe_substitute() # currently no templating actually done here                
+                shellcode = self.shell_script_template.safe_substitute(configure_runtime_environment=runtime_environmentcode,\
+                                                                       hpcdir=self.workingRoot,command=string.join(self.command," "),\
+                                                                       startdir=self.controller.options["startdir"])
                 
                 self.scriptfilename = os.path.join(self.workingRoot, "run%d.sh"%self.jobNumber)
                 if os.path.isfile(self.scriptfilename):

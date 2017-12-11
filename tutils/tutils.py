@@ -83,6 +83,7 @@ def getDefaultEngineOptions():
     """
     defaults =  {
        "rootdir" : os.getcwd(),
+       "startdir" : os.getcwd(),
        "workdir_is_rootdir" : False,
        "tardish_rc_found" : False,
        "in_workflow" : True, 
@@ -170,24 +171,59 @@ cd $hpcdir
     """,
        
        "condor_shell" : """#!/bin/bash
-cd $hpcdir
+cd $startdir > /dev/null 2>&1
+# configure environment - e.g. activate conda packages, load moules
+# or other
+_LMFILES_=/usr/share/Modules/modulefiles/null
+MODULEPATH=/usr/share/Modules/modulefiles:/etc/modulefiles:/stash/modulefiles
+LOADEDMODULES=null
+MODULESHOME=/usr/share/Modules
+export _LMFILES_ MODULEPATH LOADEDMODULES MODULESHOME
+
+$configure_runtime_environment
+
 $command
        """,
        "condor_sh_shell" : """#!/bin/sh
-cd $hpcdir
+cd $startdir > /dev/null 2>&1
+# configure environment - e.g. activate conda packages, load moules
+# or other
+_LMFILES_=/usr/share/Modules/modulefiles/null
+MODULEPATH=/usr/share/Modules/modulefiles:/etc/modulefiles:/stash/modulefiles
+LOADEDMODULES=null
+MODULESHOME=/usr/share/Modules
+export _LMFILES_ MODULEPATH LOADEDMODULES MODULESHOME
+$configure_runtime_environment
+
 $command
        """,
        "local_shell" : """#!/bin/bash
-cd $hpcdir
+cd $startdir > /dev/null 2>&1
+
+# configure environment - e.g. activate conda packages, load moules
+# or other
+
+$configure_runtime_environment
+
 $command
        """,
        "local_sh_shell" : """#!/bin/sh
-cd $hpcdir
+cd $startdir > /dev/null 2>&1
+
+# configure environment - e.g. activate conda packages, load moules
+# or other 
+$configure_runtime_environment
+
 $command
        """,
        "qiime_shell" : """#!/bin/sh
 eval `modulecmd sh load qiime`
-cd $hpcdir
+cd $startdir > /dev/null 2>&1
+
+# configure environment - e.g. activate conda packages, load moules
+# or other 
+$configure_runtime_environment
+
 $command
        """,
        "condor_qiime_shell" : """#!/bin/sh
@@ -203,10 +239,16 @@ MODULESHOME=/usr/share/Modules
 export _LMFILES_ MODULEPATH LOADEDMODULES MODULESHOME
 
 eval `modulecmd sh load qiime`
-cd $hpcdir
+cd $startdir > /dev/null 2>&1
+
+# configure environment - e.g. activate conda packages, load moules
+# or other 
+$configure_runtime_environment
+
 $command
 """,
     "slurm_shell" : """#!/bin/sh
+cd $startdir > /dev/null 2>&1
 job_started=`date`
 echo "job_started=$$job_started" >> $tlog
 echo "
@@ -216,7 +258,6 @@ echo "
 ---- end environment listing (pre config)----" >> $tlog
 
 
-cd $hpcdir
 # configure environment - e.g. activate conda packages, load moules
 # or other 
 export PATH="/stash/miniconda3/bin:$PATH"  # ensure we know how to use conda even if launched from vanilla node
@@ -243,7 +284,12 @@ exit $$job_exit_code
 """,
    "basic_slurm_runtime_environment" : """
 source activate bifo-essential
+""",
+   "basic_condor_runtime_environment" : """
+""",
+   "basic_local_runtime_environment" : """
 """
+
     }
 
     # set values usinf checkAndSetOption e.g. to correctly type some
@@ -518,13 +564,15 @@ def isCommandValid(toolargs, patternList):
 
 
 
-def pass_the_baton(batonfile, message):
+def pass_the_baton(batonfile, message, logger):
     if batonfile is None:
         return
 
     if os.path.exists(batonfile):
+        logger.info("tutils:pass_the_baton  - batonfile %s already exists - baton may have been grabbed too early !"%batonfile)
         raise tardisException("error in pass_the_baton - batonfile %s already exists - baton may have been grabbed too early !"%batonfile)
 
+    logger.info("passing the baton ( %s in %s )"%(str(message),batonfile))
     baton = open(batonfile, "w")
     print >> baton, str(message)
     baton.close()
