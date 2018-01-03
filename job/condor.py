@@ -1,5 +1,6 @@
 import string, os, stat, subprocess, sys, re
 from job import hpc
+import tutils.tutils as tutils
 
 class condorhpcJob(hpc.hpcJob):
     def __init__(self, controller, command = [],job_template= None, shell_script_template = None):
@@ -68,7 +69,7 @@ class condorhpcJob(hpc.hpcJob):
                 
                 self.scriptfilename = os.path.join(self.workingRoot, "run%d.sh"%self.jobNumber)
                 if os.path.isfile(self.scriptfilename):
-                    raise tardisException("error %s already exists"%self.scriptfilename)
+                    raise tutils.tardisException("error %s already exists"%self.scriptfilename)
                 f=open(self.scriptfilename,"w")
                 self.logWriter.info("condorhpcJob : condor shell script wrapper is %s"%self.scriptfilename)
                 f.writelines(shellcode)

@@ -171,6 +171,9 @@ cd $hpcdir
     """,
        
        "condor_shell" : """#!/bin/bash
+#these assignments are so that the shell has access to the symbols defined in the template
+hpcdir=$hpcdir
+startdir=$startdir
 cd $startdir > /dev/null 2>&1
 # configure environment - e.g. activate conda packages, load moules
 # or other
@@ -185,6 +188,10 @@ $configure_runtime_environment
 $command
        """,
        "condor_sh_shell" : """#!/bin/sh
+#these assignments are so that the shell has access to the symbols defined in the template
+hpcdir=$hpcdir
+startdir=$startdir
+
 cd $startdir > /dev/null 2>&1
 # configure environment - e.g. activate conda packages, load moules
 # or other
@@ -198,6 +205,10 @@ $configure_runtime_environment
 $command
        """,
        "local_shell" : """#!/bin/bash
+#these assignments are so that the shell has access to the symbols defined in the template
+hpcdir=$hpcdir
+startdir=$startdir
+
 cd $startdir > /dev/null 2>&1
 
 # configure environment - e.g. activate conda packages, load moules
@@ -208,6 +219,10 @@ $configure_runtime_environment
 $command
        """,
        "local_sh_shell" : """#!/bin/sh
+#these assignments are so that the shell has access to the symbols defined in the template
+hpcdir=$hpcdir
+startdir=$startdir
+
 cd $startdir > /dev/null 2>&1
 
 # configure environment - e.g. activate conda packages, load moules
@@ -217,6 +232,10 @@ $configure_runtime_environment
 $command
        """,
        "qiime_shell" : """#!/bin/sh
+#these assignments are so that the shell has access to the symbols defined in the template
+hpcdir=$hpcdir
+startdir=$startdir
+
 eval `modulecmd sh load qiime`
 cd $startdir > /dev/null 2>&1
 
@@ -227,6 +246,10 @@ $configure_runtime_environment
 $command
        """,
        "condor_qiime_shell" : """#!/bin/sh
+#these assignments are so that the shell has access to the symbols defined in the template
+hpcdir=$hpcdir
+startdir=$startdir
+
 # note that the following env settings are probably not needed if
 # you launch your condor job from an environment that knows about
 # module,. and you use the condor job template which sends the local 
@@ -248,6 +271,10 @@ $configure_runtime_environment
 $command
 """,
     "slurm_shell" : """#!/bin/sh
+#these assignments are so that the shell has access to the symbols defined in the template
+hpcdir=$hpcdir
+startdir=$startdir
+
 cd $startdir > /dev/null 2>&1
 job_started=`date`
 echo "job_started=$$job_started" >> $tlog

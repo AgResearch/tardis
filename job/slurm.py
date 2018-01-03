@@ -1,5 +1,6 @@
 import string, os, stat, subprocess, sys, re, time
 from job import hpc
+import tutils.tutils as tutils
 
 class slurmhpcJob(hpc.hpcJob):
     def __init__(self, controller, command = [],job_template= None, shell_script_template = None):
@@ -60,7 +61,7 @@ class slurmhpcJob(hpc.hpcJob):
             if self.submitCount == 0:
                 self.scriptfilename = os.path.join(self.workingRoot, "run%d.sh"%self.jobNumber)
                 if os.path.isfile(self.scriptfilename):
-                    raise tardisException("error %s already exists"%self.scriptfilename)
+                    raise tardis.tardisException("error %s already exists"%self.scriptfilename)
                 
                 runtime_environmentcode = self.runtime_config_template.safe_substitute() # currently no templating actually done here
                 self.logname=re.sub("\.sh$",".tlog",self.scriptfilename)

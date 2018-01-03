@@ -115,7 +115,7 @@ class samDataConditioner(data.dataConditioner):
                 break
 
         self.logWriter.info("unconditionOutput : finished SAM merge step")
-        samfile.close()
+        #samfile.close()
 
         if self.compressionConditioning:
             if data.dataConditioner.state == data.dataConditioner.OK:

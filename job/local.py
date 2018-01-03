@@ -1,5 +1,6 @@
 import string, os, stat, subprocess, sys, re
 
+import tutils.tutils as tutils
 import job.hpc as hpc
 
 class localhpcJob(hpc.hpcJob):
@@ -111,7 +112,7 @@ class localhpcJob(hpc.hpcJob):
                                                                        startdir=self.controller.options["startdir"])
                 self.scriptfilename = os.path.join(self.workingRoot, "run%d.sh"%self.jobNumber)
                 if os.path.isfile(self.scriptfilename):
-                    raise tardisException("error %s already exists"%self.scriptfilename)
+                    raise tutils.tardisException("error %s already exists"%self.scriptfilename)
                 f=open(self.scriptfilename,"w")
                 self.logWriter.info("localhpcJob : local shell script wrapper is %s"%self.scriptfilename)
                 f.writelines(shellcode)
