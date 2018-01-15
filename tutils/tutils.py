@@ -134,7 +134,7 @@ Queue
 
 #SBATCH -J $tardis_job_moniker
 #SBATCH -A $tardis_account_moniker        # Project Account
-#SBATCH --time=20:00:00            # Walltime
+#SBATCH --time=240:00:00            # Walltime
 #SBATCH --ntasks=1                 # number of parallel processes
 #SBATCH --ntasks-per-socket=1      # number of processes allowed on a socket
 #SBATCH --cpus-per-task=4          #number of threads per process
@@ -151,7 +151,7 @@ srun --cpu_bind=v,threads $hpcdir/slurm_array_shim.sh ${SLURM_ARRAY_TASK_ID}
 
 #SBATCH -J $tardis_job_moniker
 #SBATCH -A $tardis_account_moniker        # Project Account
-#SBATCH --time=20:00:00            # Walltime
+#SBATCH --time=240:00:00            # Walltime
 #SBATCH --ntasks=1                 # number of parallel processes
 #SBATCH --ntasks-per-socket=1      # number of processes allowed on a socket
 #SBATCH --cpus-per-task=4          #number of threads per process
