@@ -1,8 +1,5 @@
 import sys, exceptions, os, re, ConfigParser, logging, tempfile
 
-import conditioner.text as text
-
-
 class tardisException(exceptions.Exception):
     def __init__(self,args=None):
         super(tardisException, self).__init__(args)

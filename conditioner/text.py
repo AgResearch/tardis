@@ -5,6 +5,7 @@ MAX_DIMENSION = 999999 # the maximum number of chunks we will allow  - prevent i
 
 
 import conditioner.data as data
+import tutils.tutils as tutils
 
 
 
@@ -714,7 +715,7 @@ def _slow_get_conditioned_filenames(caller, filename1, argchunksize, outdir, inf
             input_count += 1
 
             # will sample the output if needed
-            sampleBool = getSampleBool(samplerate) # 1 or 0 (always 1 if not sampling)
+            sampleBool = tutils.getSampleBool(samplerate) # 1 or 0 (always 1 if not sampling)
 
             # will length-filter the output if needed.
             if length_bounds != (None, None):            
