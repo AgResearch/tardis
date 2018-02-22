@@ -220,6 +220,7 @@ class dataConditioner(object):
             self.logWriter.info("dataConditioner : making zipped input generator from %s"%str(inputGenerators))
             input_iter = itertools.izip(*inputGenerators)
             self.logWriter.info("DEBUG : zipped input generator is %s"%str(input_iter))
+            self.jobcontroller.options["input_conditioning"] = True
         else:
             return [((None,None),[None,None])]
         

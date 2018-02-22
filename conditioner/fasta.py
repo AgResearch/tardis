@@ -1,4 +1,4 @@
-import itertools, re
+import itertools, re, gzip
 import conditioner.data as data
 import conditioner.text as text
 

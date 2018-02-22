@@ -83,6 +83,7 @@ def getDefaultEngineOptions():
        "startdir" : os.getcwd(),
        "workdir_is_rootdir" : False,
        "tardish_rc_found" : False,
+       "input_conditioning" : False,
        "in_workflow" : True, 
        "chunksize" : -1,   # -1 means it will be calculated to yield <= max_tasks
        "samplerate" : None,
@@ -171,7 +172,14 @@ cd $hpcdir
 #these assignments are so that the shell has access to the symbols defined in the template
 hpcdir=$hpcdir
 startdir=$startdir
-cd $startdir > /dev/null 2>&1
+input_conditioning=$input_conditioning
+
+if [ $input_conditioning != True ]; then
+   cd $startdir > /dev/null 2>&1               # command should see the original cwd of user as its cwd
+else
+   cd $hpcdir > /dev/null 2>&1                 # command should see the working folder where the conditioned input lives, as its cwd
+fi
+
 # configure environment - e.g. activate conda packages, load moules
 # or other
 _LMFILES_=/usr/share/Modules/modulefiles/null
@@ -189,7 +197,14 @@ $command
 hpcdir=$hpcdir
 startdir=$startdir
 
-cd $startdir > /dev/null 2>&1
+input_conditioning=$input_conditioning
+
+if [ $input_conditioning != True ]; then
+   cd $startdir > /dev/null 2>&1               # command should see the original cwd of user as its cwd
+else
+   cd $hpcdir > /dev/null 2>&1                 # command should see the working folder where the conditioned input lives, as its cwd
+fi
+
 # configure environment - e.g. activate conda packages, load moules
 # or other
 _LMFILES_=/usr/share/Modules/modulefiles/null
@@ -206,7 +221,14 @@ $command
 hpcdir=$hpcdir
 startdir=$startdir
 
-cd $startdir > /dev/null 2>&1
+input_conditioning=$input_conditioning
+
+if [ $input_conditioning != True ]; then
+   cd $startdir > /dev/null 2>&1               # command should see the original cwd of user as its cwd
+else
+   cd $hpcdir > /dev/null 2>&1                 # command should see the working folder where the conditioned input lives, as its cwd
+fi
+
 
 # configure environment - e.g. activate conda packages, load moules
 # or other
@@ -220,7 +242,13 @@ $command
 hpcdir=$hpcdir
 startdir=$startdir
 
-cd $startdir > /dev/null 2>&1
+input_conditioning=$input_conditioning
+
+if [ $input_conditioning != True ]; then
+   cd $startdir > /dev/null 2>&1               # command should see the original cwd of user as its cwd
+else
+   cd $hpcdir > /dev/null 2>&1                 # command should see the working folder where the conditioned input lives, as its cwd
+fi
 
 # configure environment - e.g. activate conda packages, load moules
 # or other 
@@ -232,9 +260,15 @@ $command
 #these assignments are so that the shell has access to the symbols defined in the template
 hpcdir=$hpcdir
 startdir=$startdir
+input_conditioning=$input_conditioning
+
+if [ $input_conditioning != True ]; then
+   cd $startdir > /dev/null 2>&1               # command should see the original cwd of user as its cwd
+else
+   cd $hpcdir > /dev/null 2>&1                 # command should see the working folder where the conditioned input lives, as its cwd
+fi
 
 eval `modulecmd sh load qiime`
-cd $startdir > /dev/null 2>&1
 
 # configure environment - e.g. activate conda packages, load moules
 # or other 
@@ -245,7 +279,14 @@ $command
        "condor_qiime_shell" : """#!/bin/sh
 #these assignments are so that the shell has access to the symbols defined in the template
 hpcdir=$hpcdir
-startdir=$startdir
+
+input_conditioning=$input_conditioning
+
+if [ $input_conditioning != True ]; then
+   cd $startdir > /dev/null 2>&1               # command should see the original cwd of user as its cwd
+else
+   cd $hpcdir > /dev/null 2>&1                 # command should see the working folder where the conditioned input lives, as its cwd
+fi
 
 # note that the following env settings are probably not needed if
 # you launch your condor job from an environment that knows about
@@ -272,7 +313,14 @@ $command
 hpcdir=$hpcdir
 startdir=$startdir
 
-cd $startdir > /dev/null 2>&1
+input_conditioning=$input_conditioning
+
+if [ $input_conditioning != True ]; then
+   cd $startdir > /dev/null 2>&1               # command should see the original cwd of user as its cwd
+else
+   cd $hpcdir > /dev/null 2>&1                 # command should see the working folder where the conditioned input lives, as its cwd
+fi
+
 job_started=`date`
 echo "job_started=$$job_started" >> $tlog
 echo "

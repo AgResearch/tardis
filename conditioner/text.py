@@ -1,4 +1,4 @@
-import re, os , time, subprocess, sys, itertools
+import re, os , time, subprocess, sys, itertools, gzip
 
 global MAX_DIMENSION
 MAX_DIMENSION = 999999 # the maximum number of chunks we will allow  - prevent incoherent chunking options generating huge numbers of fragments

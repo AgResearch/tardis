@@ -68,7 +68,8 @@ class slurmhpcJob(hpc.hpcJob):
                 shellcode = self.shell_script_template.safe_substitute(configure_runtime_environment=runtime_environmentcode, \
                                                                        hpcdir=self.workingRoot,\
                                                                        command=string.join(self.command," "),\
-                                                                       tlog=self.logname, startdir=self.controller.options["startdir"])
+                                                                       tlog=self.logname, startdir=self.controller.options["startdir"],\
+                                                                       input_conditioning=str(self.controller.options["input_conditioning"]))
                 
                 f=open(self.scriptfilename,"w")
                 self.logWriter.info("slurmJob : slurm shell script wrapper is %s"%self.scriptfilename)

@@ -65,7 +65,8 @@ class condorhpcJob(hpc.hpcJob):
                 runtime_environmentcode = self.runtime_config_template.safe_substitute() # currently no templating actually done here                
                 shellcode = self.shell_script_template.safe_substitute(configure_runtime_environment=runtime_environmentcode,\
                                                                        hpcdir=self.workingRoot,command=string.join(self.command," "),\
-                                                                       startdir=self.controller.options["startdir"])
+                                                                       startdir=self.controller.options["startdir"],
+                                                                       input_conditioning=str(self.controller.options["input_conditioning"]))
                 
                 self.scriptfilename = os.path.join(self.workingRoot, "run%d.sh"%self.jobNumber)
                 if os.path.isfile(self.scriptfilename):
