@@ -44,11 +44,12 @@ KSEQ_INIT(gzFile, gzread)
 
 
 /*
-* This program counts the number of logical recrods in  a fastq or fasta file , and prints the count to stdout.
+* This program counts the number of logical records in  a fastq or fasta file , and prints the count to stdout.
 * The input file may be compressed or uncompressed. 
 * It has an optional "approximate mode" (-a) , which estimates the number of records by 
-* reading and writing a small preview , of n records, and then estimatog N = n * original file size / preview filesize
-* (if the original is compressed then so is the preview)
+* reading and writing a small preview , of n records, and then estimating N = empirical_adjustment_function( n * original file size / preview filesize)
+* (if the original is compressed then so is the preview). The empirical adjustment is determined by fitting a model to 
+* a test dataset of Y = actual/raw_approximation , in terms of X = filesize in bytes.
 *
 * bugs / limitations associated with the -a option : 
 * 
@@ -57,8 +58,8 @@ KSEQ_INIT(gzFile, gzread)
 *    3. will not recognise .zz compression
 *    4. for all compression types other than gzip, the -a option approximation may be poor (because the compressed preview is always gzip )
 *    5. not extensively tested on formats other than gzip, and uncompressed
-*    6. there are probable big-endian/little-endian variations on the compression magic bytes that are not supported. (One of these,for gzip, is supported)
-*       - if compression is not detected, -a option will be way out
+*    6. there are big-endian/little-endian variations on the compression magic bytes that are not yet supported. (One of these,for gzip, is supported)
+*       - if compression is not detected, -a option will be "way out"
 *    7. not tested on variant fastq and fasta 
 *    8. The empirical adjustment is based on a fairly small test dataset and could be improved with more data and a better model
 * 
