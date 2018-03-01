@@ -286,7 +286,7 @@ int estimate_count(int preview_record_count, int compression_type, double file_s
 
 	raw_estimate = preview_record_count * file_size / preview_size ; 
 
-	if ( file_size < 20000000 ) {
+	if ( file_size < 100000000 ) {
 		return raw_estimate;
 	}
 
