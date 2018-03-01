@@ -38,12 +38,13 @@
 #include <unistd.h>
 #include <time.h>
 #include <sys/stat.h>
+#include <math.h>
 #include "kseq.h"
 KSEQ_INIT(gzFile, gzread)
 
 
 /*
-* This program counts the number of logical recrods in  a fastq or fasta, and prints the count to stdout.
+* This program counts the number of logical recrods in  a fastq or fasta file , and prints the count to stdout.
 * The input file may be compressed or uncompressed. 
 * It has an optional "approximate mode" (-a) , which estimates the number of records by 
 * reading and writing a small preview , of n records, and then estimatog N = n * original file size / preview filesize
@@ -51,26 +52,19 @@ KSEQ_INIT(gzFile, gzread)
 *
 * bugs / limitations associated with the -a option : 
 * 
-*    1. will not recognise .zz compression
-*    2. for all compression types other than gzip, the -a option approximation may be poor (because the compressed preview is always gzip )
-*    3. not extensively tested on formats other than gzip, and uncompressed
-*    4. not tested on variant fastq and fasta 
+*    1. accuracy in general on compressed data is somewhat poor as compression size is probably nonlinear w.r.t file size
+*    2. accuracy will be poor if the preview seq lengths are unrepresentative
+*    3. will not recognise .zz compression
+*    4. for all compression types other than gzip, the -a option approximation may be poor (because the compressed preview is always gzip )
+*    5. not extensively tested on formats other than gzip, and uncompressed
+*    6. there are probable big-endian/little-endian variations on the compression magic bytes that are not supported. (One of these,for gzip, is supported)
+*       - if compression is not detected, -a option will be way out
+*    7. not tested on variant fastq and fasta 
+*    8. The empirical adjustment is based on a fairly small test dataset and could be improved with more data and a better model
 * 
-* Example performance of -a option : 
-* time ./kseq_count -a  FM_E-1.fastq.gz
-* 94899536
-*
-* real    0m1.232s
-* user    0m1.219s
-* sys     0m0.012s
-*
-* time ./kseq_count  FM_E-1.fastq.gz
-* 93155200
-*
-* real    6m2.755s
-* user    5m58.003s
-* sys     0m4.278s
 */
+
+#define DEBUG 0
 
 
 typedef struct kseqcount_opts {
@@ -102,7 +96,7 @@ int get_kseqcount_opts(int argc, char **argv, t_kseqcount_opts *kseqcount_opts)
 				kseqcount_opts-> approximate = 1;
 				break;
 			case '?':
-				fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt);
+				fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt); 
 				return 1;
 			default:
 				abort ();
@@ -116,7 +110,14 @@ int get_kseqcount_opts(int argc, char **argv, t_kseqcount_opts *kseqcount_opts)
 		fprintf(stderr, usage, argv[0]);
 		return 1;
 	}
-	kseqcount_opts->input_filename = argv[optind];    
+	kseqcount_opts->input_filename = argv[optind]; 
+
+	if ( ! file_exist( kseqcount_opts->input_filename )) {
+		fprintf(stderr, "file not found : %s\n", kseqcount_opts->input_filename);
+		return 1;
+	}
+		
+  
   	return 0;
 }
 
@@ -171,6 +172,12 @@ void kseq_count_write( kseq_t *seq, FILE *fp) {
 }
 
 
+int file_exist (char *filename) {
+  	struct stat   stbuff;   
+  	return (stat (filename, &stbuff) == 0);
+}
+
+
 double get_filesize(char *filename) {
 	struct stat stbuf;
 	stat(filename, &stbuf);
@@ -209,51 +216,103 @@ int get_compression_type(char *filename) {
 	//compress (.Z) starts with 0x1f, 0x9d
 	//bzip2 (.bz2) starts with 0x42, 0x5a, 0x68
 
-        const char gzip[] = { 0x1f, 0x8b, 0x08 , '\0' };
-	const char zip[] = { 0x50, 0x4b, 0x03, 0x04 ,'\0'};
-	const char zip_empty_a[] = { 0x50, 0x4b, 0x05, 0x06, '\0'};
-	const char zip_empty_b[] = { 0x50, 0x4b, 0x06, 0x06, '\0'};
-	const char compress[] = { 0x1f, 0x9d, '\0'};
-	const char bzip2[] = { 0x42, 0x5a, 0x68, '\0'};
-	const char xz[] = {  0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00, '\0' };
+	// note there are big-endian /little-endian variations to the above - e.g. from the wild : 
+        //illustrious$ od -x /dataset/hiseq/scratch/postprocessing/180222_D00390_0347_ACC8WAANXX.processed/bcl2fastq/SQ0634/SQ0634_S8_L008_R1_001.fastq.gz | head
+        //0000000 8b1f 0408 0000 0000 ff00 0006 4342 0002
 
 
-	int finger_length = 0;
+        const unsigned char gzip[] = { 0x1f, 0x8b,'\0' };
+        const unsigned char gzip_little_endian[] = { 0x8b,0x1f, '\0' };
+	const unsigned char zip[] = { 0x50, 0x4b, 0x03, 0x04 ,'\0'};
+	const unsigned char zip_empty_a[] = { 0x50, 0x4b, 0x05, 0x06, '\0'};
+	const unsigned char zip_empty_b[] = { 0x50, 0x4b, 0x06, 0x06, '\0'};
+	const unsigned char compress[] = { 0x1f, 0x9d, '\0'};
+	const unsigned char bzip2[] = { 0x42, 0x5a, 0x68, '\0'};
+	const unsigned char xz[] = {  0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00, '\0' };
 
+
+        const unsigned char* fingerprints[] = { gzip , gzip_little_endian ,zip, zip_empty_a, zip_empty_b, compress, bzip2, xz};
+
+        const int finger_sizes[] = { sizeof(gzip)/sizeof(gzip[0])-1, sizeof(gzip_little_endian)/sizeof(gzip_little_endian[0])-1, \
+                                     sizeof(zip)/sizeof(zip[0])-1, sizeof(zip_empty_a)/sizeof(zip_empty_a[0])-1,\
+                                     sizeof(zip_empty_b)/sizeof(zip_empty_b[0])-1, sizeof(compress)/sizeof(compress[0])-1,\
+                                     sizeof(bzip2)/sizeof(bzip2[0])-1, sizeof(xz)/sizeof(xz[0])-1 };
 	int num_fingerprints;
-        const char* fingerprints[] = { gzip , zip, zip_empty_a, zip_empty_b, compress, bzip2, xz};
-        const int finger_sizes[] = { sizeof(gzip), sizeof(zip), sizeof(zip_empty_a) , sizeof(zip_empty_b), \
-                            sizeof(compress), sizeof(bzip2), sizeof(xz) };
-
-	int buf_length;
-	char fingerprint_buffer[] = {'\0', '\0','\0','\0','\0','\0','\0'};
+	const int BUF_SIZE=7;
+	unsigned char fingerprint_buffer[BUF_SIZE];
 	
 	FILE *instream;
-	int num_read=0;
+	int num_read=0; 
 	int i;
 
         int compression_type = -1;
 
-	buf_length=( sizeof(fingerprint_buffer) / sizeof(fingerprint_buffer[0]) ) - 1 ;
         num_fingerprints = sizeof(fingerprints)/ sizeof(fingerprints[0]);
 
   
 	instream = fopen(filename,"rb");
-	num_read = fread(fingerprint_buffer, buf_length, sizeof(fingerprint_buffer[0]), instream);
+	num_read = fread(fingerprint_buffer, sizeof(fingerprint_buffer[0]), BUF_SIZE, instream);
 	fclose(instream);
+
+	if(DEBUG) {
+		printf("buf length=%d\nsize=%d\nnum read=%d\n%02x\n%02x\n%02x\n\n\n", BUF_SIZE, sizeof(fingerprint_buffer[0]), num_read,
+                      (unsigned int) fingerprint_buffer[0], (unsigned int) fingerprint_buffer[1], (unsigned int) fingerprint_buffer[2] );
+	}
 
 
 	for(i=0; i< num_fingerprints; i++) {
-	   if(strncmp( fingerprint_buffer, fingerprints[i], finger_sizes[i]) == 0) { 
-	      compression_type = i;
-	      break;
-	   }
-        }
+		if (DEBUG) {
+                	printf("window: %d\nbuffer: \n%02x\n%02x\n%02x\n fingerprint: \n%02x\n%02x\n", finger_sizes[i],\
+                      	(unsigned int) fingerprint_buffer[0], (unsigned int) fingerprint_buffer[1], (unsigned int) fingerprint_buffer[2],\
+                       	fingerprints[i][0],fingerprints[i][1] );
+		}
 
+           
+	   	if(strncmp( fingerprint_buffer, fingerprints[i], finger_sizes[i]) == 0) { 
+	      		compression_type = i;
+	      		break;
+	   	}
+        }
 	return(compression_type); 
 
-
 }
+
+
+
+int estimate_count(int preview_record_count, int compression_type, double file_size , double preview_size) {
+	double empirical_adjustment = 1.0;
+	double raw_estimate;
+	double x;
+
+	raw_estimate = preview_record_count * file_size / preview_size ; 
+
+	if ( file_size < 20000000 ) {
+		return raw_estimate;
+	}
+
+	if (compression_type < 0 ) {
+		return raw_estimate; 
+	}
+	else {
+		x = file_size / 1000000000;
+
+		empirical_adjustment = .001 * pow(x,3) - .0256 * pow(x,2) + .1717 * x + 0.6475;
+
+		if (DEBUG) {
+			printf("empirical adj = %f\n", empirical_adjustment );
+		}
+
+		if ( empirical_adjustment > 1.0 ) {
+			empirical_adjustment = 1.0;
+		}
+		else if (empirical_adjustment < 0.8 ) {
+			empirical_adjustment = 0.8;
+		}
+	
+		return ( int ) ( 0.5 + empirical_adjustment * raw_estimate ) ;
+	}
+}
+
 
 
 int main(int argc, char *argv[])
@@ -263,7 +322,7 @@ int main(int argc, char *argv[])
 	int l;
         int record_count=0;
         int kseqcount_opts_result = 0;
-	enum compression_types { gzip , zip, zip_empty_a, zip_empty_b };
+	enum compression_types { gzip , gzip2, gzip3, zip, zip_empty_a, zip_empty_b, compress, bzip2, xz };
 	int compression_type = -1;
 
         const int sample_size = 20000;
@@ -280,6 +339,9 @@ int main(int argc, char *argv[])
 	// option, in order to decide whether to write out a compressed or uncompressed 
 	// preview file. (zlib can handle either compressed or uncompressed *input* transparently)
         compression_type = get_compression_type( kseqcount_opts.input_filename) ;
+
+	if(DEBUG) 
+		printf("DEBUG : compression type = %d\n",compression_type);
 	
 
 	// process the file 
@@ -320,7 +382,7 @@ int main(int argc, char *argv[])
 		else {
 			fclose(tempfile.temp_file);
 		}
-		record_count = (int)( 0.5 + record_count * get_filesize( kseqcount_opts.input_filename ) / get_filesize(tempfile.temp_filename) );
+		record_count = estimate_count(record_count, compression_type, get_filesize( kseqcount_opts.input_filename ),  get_filesize(tempfile.temp_filename) );
 		//record_count = 0;
 
 	} // approximating
