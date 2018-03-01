@@ -441,14 +441,14 @@ def _fast_get_conditioned_filenames(caller, filename1, argchunksize, outdir, inf
             sys.exit(proc.returncode)
     except OSError,e:
         caller.logWriter.info("fast input conditioner : error - fork of %s failed with OSError : %s"%(" ".join(split_command), e))
-        raise tardisException("fast input conditioner : error - fork of %s failed with OSError : %s"%(" ".join(split_command), e))
+        raise tutils.tardisException("fast input conditioner : error - fork of %s failed with OSError : %s"%(" ".join(split_command), e))
 
     # parent
     if filename2 != None:
         try:
             split_command = ["kseq_split", "-f" , batonfile2, "-o", outformat, filename2, str(chunksize), chunktemplate2 ]
             if samplerate is not None:
-                raise tardisException("this input conditioner does not support paired random sampling ! - should not be executing this code block !?")
+                raise tutils.tardisException("this input conditioner does not support paired random sampling ! - should not be executing this code block !?")
             
             caller.logWriter.info("fast input conditioner forking split process : %s"%" ".join(split_command))
             me = os.fork()
@@ -468,7 +468,7 @@ def _fast_get_conditioned_filenames(caller, filename1, argchunksize, outdir, inf
                 sys.exit(proc.returncode)
         except OSError,e:
             caller.logWriter.info("fast input conditioner : error - fork of %s failed with OSError : %s"%(" ".join(split_command), e))
-            raise tardisException("fast input conditioner : error - fork of %s failed with OSError : %s"%(" ".join(split_command), e))
+            raise tutils.tardisException("fast input conditioner : error - fork of %s failed with OSError : %s"%(" ".join(split_command), e))
 
     # parent
 
@@ -507,7 +507,7 @@ def _fast_get_conditioned_filenames(caller, filename1, argchunksize, outdir, inf
                         caller.logWriter.info("error - too many failed attempts to parse batonfile %s - giving up"%batonfile1)
                         exception_count += 1
                         if exception_count >= 50:
-                            raise tardisException("error - too many failed attempts to parse batonfile %s - giving up"%batonfile1)
+                            raise tutils.tardisException("error - too many failed attempts to parse batonfile %s - giving up"%batonfile1)
                         
                         
 
@@ -527,7 +527,7 @@ def _fast_get_conditioned_filenames(caller, filename1, argchunksize, outdir, inf
                         caller.logWriter.info("error - too many failed attempts to parse batonfile %s - giving up"%batonfile1)
                         exception_count += 1
                         if exception_count >= 50:
-                            raise tardisException("error - too many failed attempts to parse batonfile %s - giving up"%batonfile1)
+                            raise tutils.tardisException("error - too many failed attempts to parse batonfile %s - giving up"%batonfile1)
 
             # if we just obtained number of chunks, and we are being asked for a chunk more than this, raise StopIteration
             if total_chunks is not None:
@@ -590,7 +590,7 @@ def _fast_get_conditioned_filenames(caller, filename1, argchunksize, outdir, inf
         if chunksYieldedCount > MAX_DIMENSION:
             #raise tardisException("error - too many chunks - please adjust chunksize to yield no more than %d chunks"%MAX_DIMENSION)
             caller.error("error - too many chunks - please adjust chunksize to yield no more than %d chunks"%MAX_DIMENSION)
-            raise tardisException("error - too many chunks - please adjust chunksize to yield no more than %d chunks"%MAX_DIMENSION)
+            raise tutils.tardisException("error - too many chunks - please adjust chunksize to yield no more than %d chunks"%MAX_DIMENSION)
 
         chunk_info = [None, None]
                     
@@ -837,7 +837,7 @@ def _slow_get_conditioned_filenames(caller, filename1, argchunksize, outdir, inf
                     #raise tardisException("error - too many chunks - please adjust chunksize to yield no more than %d chunks"%MAX_DIMENSION)
                     caller.error("error - too many chunks - please adjust chunksize to yield no more than %d chunks"%MAX_DIMENSION)
                     caller.logWriter.info("the last sequences encountered before the error were : %s, %s"%(record1, record2))
-                    raise tardisException("error - too many chunks - please adjust chunksize to yield no more than %d chunks"%MAX_DIMENSION)
+                    raise tutils.tardisException("error - too many chunks - please adjust chunksize to yield no more than %d chunks"%MAX_DIMENSION)
                 
     # handle exceptions that relate to problems with the data so we can report
     # where we are, then re-raise so we bail out.

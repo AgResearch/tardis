@@ -96,7 +96,7 @@ def getDefaultEngineOptions():
        "keep_conditioned_data" : False,
        "quiet" : False,
        "max_processes" : 20,
-       "max_tasks" : 500,
+       "max_tasks" : 300,
        "hpctype" : "condor",
        "batonfile" : None,
        "valid_command_patterns" : "cat awk [t]*blast[nxp] bwa bowtie flexbar",  
