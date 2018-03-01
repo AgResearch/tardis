@@ -49,7 +49,7 @@ KSEQ_INIT(gzFile, gzread)
 * It has an optional "approximate mode" (-a) , which estimates the number of records by 
 * reading and writing a small preview , of n records, and then estimating N = empirical_adjustment_function( n * original file size / preview filesize)
 * (if the original is compressed then so is the preview). The empirical adjustment is determined by fitting a model to 
-* a test dataset of Y = actual/raw_approximation , in terms of X = filesize in bytes.
+* a test dataset of Y = actual/raw_approximation , in terms of X1=filesize in bytes, X2=compression type.
 *
 * bugs / limitations associated with the -a option : 
 * 
