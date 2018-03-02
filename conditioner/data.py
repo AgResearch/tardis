@@ -1,5 +1,7 @@
 import string, os, re, itertools
 
+import tutils.tutils as tutils
+
 class dataConditioner(object):
     """
     This is the base-class for a number of application-specific data conditioners (
@@ -306,7 +308,7 @@ class dataConditioner(object):
             dataConditioner.pairedInputConditioners.append([dc])
             dc.pairMaster = True
         else:
-            raise tardisException("addPairedInputConditioner : unsupported contents of pairedInputConditioners : %s"%str(dataConditioner.pairedInputConditioners))            
+            raise tutils.tardisException("addPairedInputConditioner : unsupported contents of pairedInputConditioners : %s"%str(dataConditioner.pairedInputConditioners))            
         return dc
 
     def appendPairedInputConditioner(self, dc):
@@ -321,7 +323,7 @@ class dataConditioner(object):
             self.pairedInputConditioners.append([dc])
             dc.pairMaster = True
         else:
-            raise tardisException("addPairedInputConditioner : unsupported contents of pairedInputConditioners : %s"%str(dataConditioner.pairedInputConditioners))            
+            raise tutils.tardisException("addPairedInputConditioner : unsupported contents of pairedInputConditioners : %s"%str(dataConditioner.pairedInputConditioners))            
         return dc
     
 
@@ -391,7 +393,7 @@ class dataConditioner(object):
         result = True
         
         if not os.path.exists(filename):
-            raise tardisException("%s does not exist"%filename)
+            raise tutils.tardisException("%s does not exist"%filename)
 
         listPath = os.path.dirname(filename)
 
@@ -429,7 +431,7 @@ class dataConditioner(object):
             # try relative path (relative to the list file name)
             result =  os.path.join(os.path.dirname(listFileName), os.path.basename(result))
             if not os.path.exists(result):
-                raise tardisException("could not find path for listed file %s (in list file %s)"%(listedFileName, listFileName))
+                raise tutils.tardisException("could not find path for listed file %s (in list file %s)"%(listedFileName, listFileName))
 
 
         return result
@@ -487,7 +489,7 @@ symlink
                 # check it is there
                 if not os.path.exists(dc.conditionedInputFileNames[0]):
                     dc.logWriter.info("error failed symlinking %s ---> %s "%(dc.conditionedInputFileNames[0] , dc.inputFileName))
-                    raise tardisException("error failed symlinking %s ---> %s"%(dc.conditionedInputFileNames[0] , dc.inputFileName))
+                    raise tutils.tardisException("error failed symlinking %s ---> %s"%(dc.conditionedInputFileNames[0] , dc.inputFileName))
 
 
         for dc in self.outputUnconditioners + self.throughputConditioners :
@@ -534,7 +536,7 @@ symlink
         # conditioned inputs , then we should not be here - thats a bug, raise an
         # exception
         if self.conditionedWordCount >= len(self.conditionedInputFileNames):
-            raise tardisException("nextConditionedInputWord : error - have already used all of %s conditioned filenames without being reset, no more available !"%len(self.conditionedInputFileNames))
+            raise tutils.tardisException("nextConditionedInputWord : error - have already used all of %s conditioned filenames without being reset, no more available !"%len(self.conditionedInputFileNames))
 
 
                     
@@ -608,7 +610,7 @@ symlink
             
             self.logWriter.info("nextConditionedOutputWord : conditioning outputs")
             if self.outputFileName is None:
-                raise tardisException("nextConditionedOutputWord : error - command conditioning has been requested but outputfilename is None")
+                raise tutils.tardisException("nextConditionedOutputWord : error - command conditioning has been requested but outputfilename is None")
             
             self.logWriter.info("nextConditionedOutputWord : cardinality = %s"%self.expectedOutputCardinality)
             if self.expectedOutputCardinality == 0:
@@ -650,7 +652,7 @@ symlink
                 conditionedInputName = self.pairedInputConditioners[0][0].conditionedInputFileNames[-1]
                 inputName = self.pairedInputConditioners[0][0].inputFileName                
             else:
-                raise tardisException("error - unable to find any input conditioners on which to base product conditioning !?")
+                raise tutils.tardisException("error - unable to find any input conditioners on which to base product conditioning !?")
 
             self.logWriter.info("product may be conditioned based on a conditioned input of %s, and an input of %s"%(conditionedInputName, inputName))            
 
@@ -771,7 +773,7 @@ symlink
                     
 
                     if match is None:
-                        raise tardisException("unsupported product conditioning directive suffix : %s"%productSuffix)
+                        raise tutils.tardisException("unsupported product conditioning directive suffix : %s"%productSuffix)
 
             # (for product conditioning , we needed the details of the conditioned output products to look for but don't care about
             # conditioning a command word)
