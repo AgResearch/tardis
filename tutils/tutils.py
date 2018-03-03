@@ -464,6 +464,8 @@ def checkAndSetOption(options, name, value):
         options[name] = int(value)
     elif name == "max_processes":
         options[name] = int(value)
+    elif name == "max_tasks":
+        options[name] = int(value)
     elif name == "valid_command_patterns":
         options[name] = re.split("\s+",value)
     elif name == "fast_sequence_input_conditioning":
