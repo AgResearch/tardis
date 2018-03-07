@@ -97,6 +97,7 @@ def getDefaultEngineOptions():
        "quiet" : False,
        "max_processes" : 20,
        "max_tasks" : 300,
+       "min_sample_size" : 500,
        "hpctype" : "condor",
        "batonfile" : None,
        "valid_command_patterns" : "cat awk [t]*blast[nxp] bwa bowtie flexbar",  
@@ -452,7 +453,7 @@ def checkAndSetOption(options, name, value):
         options[name] = int(value)
     elif name == "quiet" : 
         options[name] = value
-    elif name == "samplerate" : 
+    elif name == "samplerate": 
         options[name] = float(value)
     elif name == "from_record" : 
         options[name] = int(value)
@@ -466,6 +467,8 @@ def checkAndSetOption(options, name, value):
         options[name] = int(value)
     elif name == "max_tasks":
         options[name] = int(value)
+    elif name == "min_sample_size":
+        options[name] = int(value)        
     elif name == "valid_command_patterns":
         options[name] = re.split("\s+",value)
     elif name == "fast_sequence_input_conditioning":

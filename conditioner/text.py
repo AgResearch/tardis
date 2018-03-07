@@ -199,6 +199,14 @@ class textDataConditioner(data.dataConditioner):
             record_count = self.getLogicalRecordCount(self.inputFileName)
             self.options["chunksize"] = max(1, int( .5 + record_count / float( self.options["max_tasks"] )))
             if self.options["samplerate"] is not None:
+
+                # adjust sample rate upwards if it looks like will obtain less than min_sample_size records
+                if self.options["min_sample_size"] is not None:
+                    if float(record_count) * self.options["samplerate"] < self.options["min_sample_size"]:
+                        samplerate0 = self.options["samplerate"]
+                        self.options["samplerate"] = min(1.0, float(self.options["min_sample_size"]) / float(record_count))
+                        self.logWriter.info("text data conditioner is adjusting the sample rate up from %f to %f to meet minimum sample size parameter of %d"%( samplerate0,\
+                                                                                 self.options["samplerate"], self.options["min_sample_size"]))               
                 self.options["chunksize"] = max(self.options["chunksize"], int(0.5 + 1.0/self.options["samplerate"]))
                 self.logWriter.info("(chunksize allow for sampling rate)")                
             self.logWriter.info("using chunk size of %d"%self.options["chunksize"])
