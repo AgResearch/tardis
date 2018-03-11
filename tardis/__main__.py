@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import sys, time, string 
 
-import tutils.tutils as tutils
-import conditioner.factory as factory
-import conditioner.data as data
-import job.local as local
-import job.hpc as hpc
+import tardis.tutils.tutils as tutils
+import tardis.conditioner.factory as factory
+import tardis.conditioner.data as data
+import tardis.job.local as local
+import tardis.job.hpc as hpc
 
 
 def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkCommandIsValid = True):

@@ -1,6 +1,6 @@
 import os
 
-import conditioner.data as data
+import tardis.conditioner.data as data
 
 class waitDataConditioner(data.dataConditioner):
     #output_directive_pattern = "_condition_bam_output_(\S+)"

@@ -32,7 +32,9 @@ import ConfigParser
 import copy
 
 
-from tardis import run, getDefaultEngineOptions, getWorkDir, checkAndSetOption, dataConditioner
+from tardis.__main__ import run
+from tardis.tutils.tutils import getDefaultEngineOptions, getWorkDir, checkAndSetOption
+from tardis.conditioner.data import dataConditioner
 
 
 ###############################################################################################

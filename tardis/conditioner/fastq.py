@@ -1,9 +1,9 @@
 import subprocess
 
-import conditioner.data as data
-import conditioner.text as text
+import tardis.conditioner.data as data
+import tardis.conditioner.text as text
 
-import tutils.tutils as tutils
+import tardis.tutils.tutils as tutils
 
 class fastqDataConditioner(text.textDataConditioner):
     #input_directive_pattern = "_condition_fastq_input_(\S+)"

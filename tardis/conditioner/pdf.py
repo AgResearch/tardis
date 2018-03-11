@@ -1,4 +1,4 @@
-import conditioner.data as data 
+import tardis.conditioner.data as data 
 
 class pdfDataConditioner(data.dataConditioner):
     #output_directive_pattern = "_condition_pdf_output_(\S+)"

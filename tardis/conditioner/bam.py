@@ -1,4 +1,4 @@
-import conditioner.data as data 
+import tardis.conditioner.data as data 
 
 class bamDataConditioner(data.dataConditioner):
     #output_directive_pattern = "_condition_bam_output_(\S+)"

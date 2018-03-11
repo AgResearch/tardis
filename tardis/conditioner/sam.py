@@ -1,7 +1,7 @@
 import os, subprocess
 
-import conditioner.data as data
-import tutils.tutils as tutils
+import tardis.conditioner.data as data
+import tardis.tutils.tutils as tutils
 
 class samDataConditioner(data.dataConditioner):
     #output_directive_pattern = "_condition_sam_output_(\S+)"   # generates BAM output 

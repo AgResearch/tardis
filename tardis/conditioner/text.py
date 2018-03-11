@@ -4,8 +4,8 @@ global MAX_DIMENSION
 MAX_DIMENSION = 999999 # the maximum number of chunks we will allow  - prevent incoherent chunking options generating huge numbers of fragments
 
 
-import conditioner.data as data
-import tutils.tutils as tutils
+import tardis.conditioner.data as data
+import tardis.tutils.tutils as tutils
 
 
 
