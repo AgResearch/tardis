@@ -1,8 +1,8 @@
 import itertools, re, gzip, subprocess
-import conditioner.data as data
-import conditioner.text as text
+import tardis.conditioner.data as data
+import tardis.conditioner.text as text
 
-import tutils.tutils as tutils
+import tardis.tutils.tutils as tutils
 
 
 class fastaDataConditioner(text.textDataConditioner):

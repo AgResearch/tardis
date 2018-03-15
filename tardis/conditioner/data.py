@@ -1,6 +1,6 @@
 import string, os, re, itertools
 
-import tutils.tutils as tutils
+import tardis.tutils.tutils as tutils
 
 class dataConditioner(object):
     """

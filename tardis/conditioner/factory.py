@@ -1,19 +1,19 @@
 import logging,os, itertools, re, string, stat , subprocess, time
-import tutils.tutils as tutils
-import conditioner.fastq as fastq
-import conditioner.fasta as fasta
-import conditioner.fastq2fasta as fastq2fasta
-import conditioner.text as text
-import conditioner.data as data
-import conditioner.blastxml as blastxml
-import conditioner.pdf as pdf
-import conditioner.sam as sam
-import conditioner.bam as bam
-import conditioner.wait as wait
-import job.local as local
-import job.condor as condor
-import job.slurm as slurm
-import job.hpc as hpc
+import tardis.tutils.tutils as tutils
+import tardis.conditioner.fastq as fastq
+import tardis.conditioner.fasta as fasta
+import tardis.conditioner.fastq2fasta as fastq2fasta
+import tardis.conditioner.text as text
+import tardis.conditioner.data as data
+import tardis.conditioner.blastxml as blastxml
+import tardis.conditioner.pdf as pdf
+import tardis.conditioner.sam as sam
+import tardis.conditioner.bam as bam
+import tardis.conditioner.wait as wait
+import tardis.job.local as local
+import tardis.job.condor as condor
+import tardis.job.slurm as slurm
+import tardis.job.hpc as hpc
 
 global SLURM_MAXARRAYSIZE
 SLURM_MAXARRAYSIZE=500  # for testing - make 1000 for real

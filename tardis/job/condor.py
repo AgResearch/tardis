@@ -1,6 +1,6 @@
 import string, os, stat, subprocess, sys, re
-from job import hpc
-import tutils.tutils as tutils
+from tardis.job import hpc
+import tardis.tutils.tutils as tutils
 
 class condorhpcJob(hpc.hpcJob):
     def __init__(self, controller, command = [],job_template= None, shell_script_template = None):

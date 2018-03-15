@@ -1,7 +1,7 @@
 import string, os, stat, subprocess, sys, re
 
-import tutils.tutils as tutils
-import job.hpc as hpc
+import tardis.tutils.tutils as tutils
+import tardis.job.hpc as hpc
 
 class localhpcJob(hpc.hpcJob):
     #HPC_ROOT=HPC_CONDITIONER_ROOT

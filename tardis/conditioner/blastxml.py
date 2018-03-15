@@ -1,5 +1,5 @@
-import conditioner.text as text
-import conditioner.data as data
+import tardis.conditioner.text as text
+import tardis.conditioner.data as data
 
 class blastxmlDataConditioner(text.textDataConditioner):
     #output_directive_pattern = "_condition_blastxml_output_(\S+)"
