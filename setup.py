@@ -23,8 +23,7 @@ setup(name='tardis',
       packages=find_packages(),
       entry_points={
         'console_scripts': [
-            'tardis = tardis.__main__:main',
-            'tardish = tardis.tardish:main',
+            'tardis.py = tardis.__main__:main'
         ],
       },
       package_data={
@@ -33,8 +32,7 @@ setup(name='tardis',
       },
       license='GPLv2',
       install_requires=[
-          'biopython',
-          'pyzmq',
+          'biopython'
       ],
       python_requires='>=2.7, <3',
      )
