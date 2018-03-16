@@ -64,3 +64,13 @@ The administrivia handled by the *tardis* pre-processor includes
    cluster. This means chunks that fail on the cluster can easily be
    re-run simply by executing the corresponding shell script.
 
+
+Installation 
+
+Depedencies
+
+- kseq_split
+- there are a couple of features such as filtering sequences by length that require biopython - however 
+  for most use-cases tardis will run fine without biopython 
+
+
