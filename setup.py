@@ -32,7 +32,6 @@ setup(name='tardis',
       },
       license='GPLv2',
       install_requires=[
-          'biopython'
       ],
       python_requires='>=2.7, <3',
      )
