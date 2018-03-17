@@ -23,7 +23,7 @@ setup(name='tardis',
       packages=find_packages(),
       entry_points={
         'console_scripts': [
-            'tardis = tardis.__main__:main'
+            'tardis = tardis.tardis:main'
         ],
       },
       package_data={
