@@ -23,7 +23,7 @@ setup(name='tardis',
       packages=find_packages(),
       entry_points={
         'console_scripts': [
-            'tardis = tardis.tardis:main'
+            'tardis = tardis.run:tardis_main'
         ],
       },
       package_data={
@@ -33,5 +33,5 @@ setup(name='tardis',
       license='GPLv2',
       install_requires=[
       ],
-      python_requires='>=2.7, <3',
+      #python_requires='>=2.7, <3',
      )

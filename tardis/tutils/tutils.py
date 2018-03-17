@@ -98,7 +98,7 @@ def getDefaultEngineOptions():
        "max_processes" : 20,
        "max_tasks" : 300,
        "min_sample_size" : 500,
-       "hpctype" : "condor",
+       "hpctype" : "slurm",
        "batonfile" : None,
        "valid_command_patterns" : "cat awk [t]*blast[nxp] bwa bowtie flexbar",  
        "shell_template_name" : None,

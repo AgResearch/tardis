@@ -204,7 +204,7 @@ def run(toolargs, client_options, stdout = sys.stdout, stderr=sys.stderr, checkC
 
 
         
-def main(argv=None):
+def tardis_main(argv=None):
     if argv is None:
         argv = sys.argv
 
@@ -228,5 +228,5 @@ def main(argv=None):
     
         
 if __name__=='__main__':
-    sys.exit(main())
+    sys.exit(tardis_main())
 
