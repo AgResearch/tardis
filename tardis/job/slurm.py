@@ -5,10 +5,23 @@ import tardis.tutils.tutils as tutils
 class slurmhpcJob(hpc.hpcJob):
     def __init__(self, controller, command = [],job_template= None, shell_script_template = None):
         super(slurmhpcJob, self).__init__(controller,command)
-        
-        (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates(None, "slurm_shell", "basic_slurm_runtime_environment")
 
+        # if the option use_session_conda_config is True, then we
+        # get the session conda config , and pass that to get_templates as the default runtime config
+        # (but that will be overriden by any user setting of their run-time config)
+        # (if use_session_conda_config is false, then the (site dependent) hard-coded basic_slurm_runtime_environment
+        # will be used
+        conda_default_env = None
+        if controller.options.get("use_session_conda_config", False):
+            env_dict=os.environ()
+            conda_default_env=env_dict.get("CONDA_DEFAULT_ENV", None)
 
+        if conda_default_env is None:
+            (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates(None, "slurm_shell", "basic_slurm_runtime_environment")
+        else:
+            (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates(None, "slurm_shell", "session_runtime_environment",\
+                                                                                                  controller.options.update({"session_runtime_environment":conda_default_env})
+                                                                                                  
     @classmethod
     def getUnsubmittedJobs(cls, jobList):
         """

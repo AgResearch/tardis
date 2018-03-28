@@ -104,6 +104,8 @@ def getDefaultEngineOptions():
        "shell_template_name" : None,
        "job_template_name" : None,
        "runtime_config_name" : None,
+       "use_session_conda_config" : True,
+       "session_conda_config_source" : None,
        "fast_sequence_input_conditioning" : True,
        "condor_job" : """
 Executable     = $script
@@ -472,7 +474,9 @@ def checkAndSetOption(options, name, value):
     elif name == "valid_command_patterns":
         options[name] = re.split("\s+",value)
     elif name == "fast_sequence_input_conditioning":
-        options[name] = eval(str(value))    
+        options[name] = eval(str(value))
+    elif name == "use_session_conda_config":
+        options[name] = eval(str(value))        
     elif name == "record_filter_func":
         # the value should be code like this
         #def record_filter_func(my_arg):
