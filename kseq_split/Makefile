@@ -1,14 +1,13 @@
 all: kseq_test kseq_split
 
+LDLIBS += -lz
 
-kseq_test:kseq.h kseq_test.c 
-		$(CC) -g -O2 kseq_test.c -o kseq_test -lz
-kseq_split:kseq.h kseq_split.c 
-		$(CC) -g -O2 kseq_split.c -o kseq_split -lz
+kseq_test: kseq.h kseq_test.c
 
-kseq_count:kseq.h kseq_count.c
-		$(CC) -g -O2 kseq_count.c -o kseq_count -lz -lm
+kseq_split: kseq.h kseq_split.c
 
+kseq_count: kseq.h kseq_count.c
+	$(CC) $^ $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LDLIBS) -lm $(TARGET_ARCH) -o $@
 
 clean:
 		rm -f *.o kseq_test kseq_split kseq_count

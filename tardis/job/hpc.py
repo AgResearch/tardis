@@ -58,7 +58,7 @@ class hpcJob(object):
         self.jobHeld = False
         self.shell_script_template = None
 
-    def get_templates(self,default_job_template_name, default_shell_template_name, default_runtime_config_template_name, options = self.controller.options):
+    def get_templates(self,default_job_template_name, default_shell_template_name, default_runtime_config_template_name):
         """
         this method examines the run-time arguments supplied to tardis, and from these figures
         out a job template, shell template and runtime config template.

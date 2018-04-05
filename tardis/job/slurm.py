@@ -20,8 +20,8 @@ class slurmhpcJob(hpc.hpcJob):
             (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates(None, "slurm_shell", "basic_slurm_runtime_environment")
         else:
             (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates(None, "slurm_shell", "session_runtime_environment",\
-                                                                                                  controller.options.update({"session_runtime_environment":conda_default_env})
-                                                                                                  
+                                                                                                  controller.options.update({"session_runtime_environment":conda_default_env}))
+
     @classmethod
     def getUnsubmittedJobs(cls, jobList):
         """
