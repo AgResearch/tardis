@@ -65,11 +65,16 @@ def fastqPairedNamesEqual(name1, name2):
                     return True
 
         return False
-    
+
 
 class Usage(Exception):
     def __init__(self, msg):
         super(Usage, self).__init__(msg)
+
+class Help(Exception):
+    """Triggers a non-error usage message."""
+    def __init__(self, msg):
+        super(Help, self).__init__(msg)
 
 def getDefaultEngineOptions():
     """
@@ -621,7 +626,7 @@ local which results in each job being launched by tardis itself on the local mac
         elif arg == "-batonfile" :
             checkAndSetOption(options,"batonfile",args.pop(0))
         elif arg == "-h":
-            raise Usage(usage)
+            raise Help(usage)
         elif " " in arg:
             args.insert('"%s"' % arg) # ref /home/galaxy/galaxy/tools/ncbi_blast_plus/hide_stderr.py
         else:
