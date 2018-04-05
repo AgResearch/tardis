@@ -210,6 +210,9 @@ def tardis_main(argv=None):
 
     try:
         (options,toolargs) = tutils.getOptions(argv)
+    except tutils.Help, msg:
+        print >> sys.stderr, msg
+        return 0
     except tutils.Usage, msg:
         print >> sys.stderr, msg
         return 2
