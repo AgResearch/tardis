@@ -275,7 +275,8 @@ int main(int argc, char *argv[])
 	t_kseqsplit_opts kseqsplit_opts;
         kseqsplit_opts_result = get_kseqsplit_opts(argc, argv, &kseqsplit_opts);
  	if ( kseqsplit_opts_result != 0 ){
-		return kseqsplit_opts_result;
+		// usage message on help is not an error
+		return kseqsplit_opts_result == 2 ? 0 : kseqsplit_opts_result;
  	} 
       
 	char* chunk_name_buffer;
