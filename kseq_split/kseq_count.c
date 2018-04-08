@@ -333,7 +333,8 @@ int main(int argc, char *argv[])
         
         kseqcount_opts_result = get_kseqcount_opts(argc, argv, &kseqcount_opts);
  	if ( kseqcount_opts_result != 0 ){
-		return kseqcount_opts_result;
+		// usage message on help is not an error
+		return kseqcount_opts_result == 2 ? 0 : kseqcount_opts_result;
  	} 
 
 	// check compression type of input file. Note that we only need this for the approximate 
