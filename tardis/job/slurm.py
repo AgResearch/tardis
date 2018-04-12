@@ -13,7 +13,7 @@ class slurmhpcJob(hpc.hpcJob):
         # will be used
         conda_default_env = None
         if controller.options.get("use_session_conda_config", False):
-            env_dict=os.environ()
+            env_dict=os.environ
             conda_default_env=env_dict.get("CONDA_DEFAULT_ENV", None)
 
         if conda_default_env is None:

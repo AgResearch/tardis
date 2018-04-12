@@ -1,4 +1,5 @@
 import string
+import tardis.tutils.tutils as tutils
 
 class hpcJob(object):
     """
@@ -91,20 +92,20 @@ class hpcJob(object):
 
             # check we have at least named template or template file but not both     
             if job_template_name is not None and job_template_filename is not None:
-                raise tardisException("error both job_template_name (%s) and job_template_filename (%s) defined - only define one of these"%(job_template_name,job_template_filename) )
+                raise tutils.tardisException("error both job_template_name (%s) and job_template_filename (%s) defined - only define one of these"%(job_template_name,job_template_filename) )
             elif job_template_name is None and job_template_filename is None:
-                raise tardisException("error neither  job_template_name nor job_template_filename are defined (and no default available")
+                raise tutils.tardisException("error neither  job_template_name nor job_template_filename are defined (and no default available")
 
 
             if job_template_name is not None:
                 job_template = self.controller.options.get(job_template_name, None)   
             else:
                 if not os.path.isfile(job_template_filename):
-                    raise tardisException("error job template file %s not found"%job_template_filename )    
+                    raise tutils.tardisException("error job template file %s not found"%job_template_filename )    
                 job_template = string.join(file(job_template_filename,"r"),"")
                 
             if job_template is None:
-                raise tardisException("hpcJob: Error job template is null after templating")
+                raise tutils.tardisException("hpcJob: Error job template is null after templating")
             job_template = string.Template(job_template)
 
 
@@ -117,7 +118,7 @@ class hpcJob(object):
                 #use the default local shell template
                 shell_template_name = default_shell_template_name
             if shell_template_name is not None and shell_template_filename is not None:
-                raise tardisException("error both shell_template_name (%s) and shell_template_filename (%s) defined - only define one of these"%(shell_template_name,shell_template_filename) )
+                raise tutils.tardisException("error both shell_template_name (%s) and shell_template_filename (%s) defined - only define one of these"%(shell_template_name,shell_template_filename) )
 
             if shell_template_name is not None:
                 shell_script_template = self.controller.options.get(shell_template_name, None)
@@ -125,7 +126,7 @@ class hpcJob(object):
                 shell_script_template = string.join(file(shell_template_filename,"r"),"")
                 
             if shell_script_template is None:
-                raise tardisException("hpcJob : Error shell template is null after templating")
+                raise tutils.tardisException("hpcJob : Error shell template is null after templating")
             shell_script_template = string.Template(shell_script_template)
 
 
@@ -145,7 +146,7 @@ class hpcJob(object):
 
             # don't want both named,  and a file 
             if runtime_config_template_name is not None and runtime_config_template_filename is not None:
-                raise tardisException("error both runtime_config_template_name (%s) and runtime_config_template_filename (%s) defined - only define one of these"%(runtime_config_template_name,runtime_config_template_filename) )
+                raise tutils.tardisException("error both runtime_config_template_name (%s) and runtime_config_template_filename (%s) defined - only define one of these"%(runtime_config_template_name,runtime_config_template_filename) )
 
             if runtime_config_template_name is not None:
                 runtime_config_template = self.controller.options.get(runtime_config_template_name, None)
@@ -153,7 +154,7 @@ class hpcJob(object):
                 runtime_config_template = string.join(file(runtime_config_template_filename,"r"),"")
                 
             if runtime_config_template is None:
-                raise tardisException("hpcJob : Error config template is null after templating")
+                raise tutils.tardisException("hpcJob : Error config template is null after templating")
             
             runtime_config_template = string.Template(runtime_config_template)
 
