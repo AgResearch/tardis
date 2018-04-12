@@ -17,9 +17,9 @@ class slurmhpcJob(hpc.hpcJob):
             conda_default_env=env_dict.get("CONDA_DEFAULT_ENV", None)
 
         if conda_default_env is None:
-            (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates(None, "slurm_shell", "basic_slurm_runtime_environment")
+            (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates("default_slurm_array_job", "slurm_shell", "basic_slurm_runtime_environment")
         else:
-            (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates(None, "slurm_shell", "session_runtime_environment",\
+            (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates("default_slurm_array_job", "slurm_shell", "session_runtime_environment",\
                                                                                                   controller.options.update({"session_runtime_environment":conda_default_env}))
 
     @classmethod
