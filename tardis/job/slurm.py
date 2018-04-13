@@ -6,21 +6,35 @@ class slurmhpcJob(hpc.hpcJob):
     def __init__(self, controller, command = [],job_template= None, shell_script_template = None):
         super(slurmhpcJob, self).__init__(controller,command)
 
-        # if the option use_session_conda_config is True, then we
+        # if the option use_session_conda_config is True, then we pass "conda_session_environment" as the name
+        # of the default run time template. (If this is not overridden by a user environment setting request,
+        # then get_templates will return a template into which we substitute the conda session env to use)
+        
         # get the session conda config , and pass that to get_templates as the default runtime config
         # (but that will be overriden by any user setting of their run-time config)
         # (if use_session_conda_config is false, then the (site dependent) hard-coded basic_slurm_runtime_environment
         # will be used
-        conda_default_env = None
+        conda_session_env = None
         if controller.options.get("use_session_conda_config", False):
+            self.logWriter.info("checking for active conda sessions...")
             env_dict=os.environ
-            conda_default_env=env_dict.get("CONDA_DEFAULT_ENV", None)
+            conda_session_env=env_dict.get("CONDA_DEFAULT_ENV", None)
+            
 
-        if conda_default_env is None:
-            (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates("default_slurm_array_job", "slurm_shell", "basic_slurm_runtime_environment")
+        if conda_session_env is None:
+            self.logWriter.info("(did not find any active conda sessions)")
+            (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates("default_slurm_array_job", "slurm_shell", \
+                                                                                                  "basic_slurm_runtime_environment")
         else:
-            (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates("default_slurm_array_job", "slurm_shell", "session_runtime_environment",\
-                                                                                                  controller.options.update({"session_runtime_environment":conda_default_env}))
+            self.logWriter.info("found active session called %s - will use this unless user says otherwise"%conda_session_env)
+            (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates("default_slurm_array_job", "slurm_shell", \
+                                                                                                  "session_conda_runtime_environment")
+            
+        if conda_session_env is not None:
+            # we may or may not have some template substitution to do here, depending on whether the user supplied a run-time env
+            # or not - i.e. this next line may or may not do a substitution
+            self.runtime_config_template=string.Template(self.runtime_config_template.safe_substitute(session_conda_runtime_environment=conda_session_env))
+                                                                                                  
 
     @classmethod
     def getUnsubmittedJobs(cls, jobList):

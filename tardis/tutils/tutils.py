@@ -368,6 +368,9 @@ source activate bifo-essential
    "basic_condor_runtime_environment" : """
 """,
    "basic_local_runtime_environment" : """
+""",
+    "session_conda_runtime_environment" : """
+source activate $session_conda_runtime_environment
 """
 
     }
