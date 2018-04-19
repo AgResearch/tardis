@@ -1,4 +1,4 @@
-all: kseq_test kseq_split
+all: kseq_test kseq_split kseq_count
 
 LDLIBS += -lz
 

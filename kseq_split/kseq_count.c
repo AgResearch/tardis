@@ -81,6 +81,12 @@ typedef struct kseqcount_tempfile {
 } t_kseqcount_tempfile;
 
 
+int file_exist (char *filename) {
+  	struct stat   stbuff;   
+  	return (stat (filename, &stbuff) == 0);
+}
+
+
 int get_kseqcount_opts(int argc, char **argv, t_kseqcount_opts *kseqcount_opts)
 {
 	char* usage="Usage: %s [ -h ] [-a] filename \n";
@@ -170,12 +176,6 @@ void kseq_count_write( kseq_t *seq, FILE *fp) {
 	}
 
 	return;
-}
-
-
-int file_exist (char *filename) {
-  	struct stat   stbuff;   
-  	return (stat (filename, &stbuff) == 0);
 }
 
 
