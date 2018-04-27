@@ -1,0 +1,10 @@
+Executable     = $script
+Universe       = vanilla
+error          = $script.err.$(Cluster).$(Process)
+output         = $script.out.$(Cluster).$(Process)
+log            = $log
+# request a sensible amount of RAM for a typical bioinformatics job - 2GB. Also
+# request_cpus 4 is intended to stop over-subscription on a typical cluster
+request_memory = 2000
+request_cpus = 4
+Queue

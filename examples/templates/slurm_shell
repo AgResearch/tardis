@@ -1,0 +1,45 @@
+#!/bin/sh
+#these assignments are so that the shell has access to the symbols defined in the template
+hpcdir=$hpcdir
+startdir=$startdir
+
+input_conditioning=$input_conditioning
+
+if [ $input_conditioning != True ]; then
+   cd $startdir > /dev/null 2>&1               # command should see the original cwd of user as its cwd
+else
+   cd $hpcdir > /dev/null 2>&1                 # command should see the working folder where the conditioned input lives, as its cwd
+fi
+
+job_started=`date`
+echo "job_started=$$job_started" >> $tlog
+echo "
+---- begin environment listing (pre config)----" >> $tlog
+env >> $tlog
+echo "
+---- end environment listing (pre config)----" >> $tlog
+
+
+# configure environment - e.g. activate conda packages, load moules
+# or other
+export PATH="/stash/miniconda3/bin:$PATH"  # ensure we know how to use conda even if launched from vanilla node
+$configure_runtime_environment
+
+echo "
+---- begin environment listing (post config)----" >> $tlog
+env >> $tlog
+echo "
+---- end environment listing (post config)----" >> $tlog
+
+# run the command
+$command
+
+# write datestamep and exit code to tardis log
+job_exit_code=$$?
+job_ended=`date`
+
+echo "job_exit_code=$$job_exit_code" >> $tlog
+echo "job_ended=$$job_ended" >> $tlog   #this must go last, after exit code (to avoid race condition as poll is for job_ended)
+
+# exit with the exit code we received from the command
+exit $$job_exit_code

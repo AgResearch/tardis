@@ -96,9 +96,8 @@ class hpcJob(object):
             elif job_template_name is None and job_template_filename is None:
                 raise tutils.tardisException("error neither  job_template_name nor job_template_filename are defined (and no default available")
 
-
             if job_template_name is not None:
-                job_template = self.controller.options.get(job_template_name, None)   
+                job_template = tutils.getTemplateContent(self.controller.options, job_template_name, logWriter=self.logWriter)
             else:
                 if not os.path.isfile(job_template_filename):
                     raise tutils.tardisException("error job template file %s not found"%job_template_filename )    
@@ -121,7 +120,7 @@ class hpcJob(object):
                 raise tutils.tardisException("error both shell_template_name (%s) and shell_template_filename (%s) defined - only define one of these"%(shell_template_name,shell_template_filename) )
 
             if shell_template_name is not None:
-                shell_script_template = self.controller.options.get(shell_template_name, None)
+                shell_script_template = tutils.getTemplateContent(self.controller.options, shell_template_name, logWriter=self.logWriter)
             else:
                 shell_script_template = string.join(file(shell_template_filename,"r"),"")
                 
@@ -149,7 +148,7 @@ class hpcJob(object):
                 raise tutils.tardisException("error both runtime_config_template_name (%s) and runtime_config_template_filename (%s) defined - only define one of these"%(runtime_config_template_name,runtime_config_template_filename) )
 
             if runtime_config_template_name is not None:
-                runtime_config_template = self.controller.options.get(runtime_config_template_name, None)
+                runtime_config_template = tutils.getTemplateContent(self.controller.options, runtime_config_template_name, logWriter=self.logWriter)
             else:
                 runtime_config_template = string.join(file(runtime_config_template_filename,"r"),"")
                 

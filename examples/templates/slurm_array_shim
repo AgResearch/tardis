@@ -1,0 +1,4 @@
+#!/bin/bash
+array_index=$1
+cd $hpcdir
+./run${array_index}.sh
