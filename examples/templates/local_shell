@@ -1,0 +1,20 @@
+#!/bin/bash
+#these assignments are so that the shell has access to the symbols defined in the template
+hpcdir=$hpcdir
+startdir=$startdir
+
+input_conditioning=$input_conditioning
+
+if [ $input_conditioning != True ]; then
+   cd $startdir > /dev/null 2>&1               # command should see the original cwd of user as its cwd
+else
+   cd $hpcdir > /dev/null 2>&1                 # command should see the working folder where the conditioned input lives, as its cwd
+fi
+
+
+# configure environment - e.g. activate conda packages, load moules
+# or other
+
+$configure_runtime_environment
+
+$command

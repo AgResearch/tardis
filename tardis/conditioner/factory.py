@@ -80,7 +80,7 @@ srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}
             return
 
         # write the slurm array shim to the working folder
-        slurm_array_shim=string.Template(self.options.get("slurm_array_shim",None))
+        slurm_array_shim=string.Template(tutils.getTemplateContent(self.options, "slurm_array_shim", logWriter=self.logWriter))
         shimcode  = slurm_array_shim.safe_substitute(hpcdir=self.workingRoot)
         shim_file_name = os.path.join(self.workingRoot, "slurm_array_shim.sh")
         f=open(shim_file_name,"w")
@@ -102,7 +102,7 @@ srun --cpu_bind=v,threads ${SLURM_ARRAY_TASK_ID}
             raise tutils.tardisException("error both job_template_name (%s) and job_template_filename (%s) defined - only define one of these"%(job_template_name,job_template_filename) )
 
         if job_template_name is not None:
-            job_template = self.options.get(job_template_name, None)   
+            job_template = tutils.getTemplateContent(self.options, job_template_name, logWriter=self.logWriter)
         else:
             if not os.path.isfile(job_template_filename):
                 raise tutils.tardisException("error job template file %s not found"%job_template_filename )    

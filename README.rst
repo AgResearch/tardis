@@ -1,3 +1,7 @@
+======
+tardis
+======
+
 *tardis* supports a relatively more interactive than batch style of use
 of HPC compute resources, in the sense that it supports entering a
 foreground shell command to execute a task in parallel on a cluster,
@@ -65,12 +69,32 @@ The administrivia handled by the *tardis* pre-processor includes
    re-run simply by executing the corresponding shell script.
 
 
-Installation 
+Installation
+============
 
-Depedencies
+Dependencies
+============
 
 - kseq_split
-- there are a couple of features such as filtering sequences by length that require biopython - however 
-  for most use-cases tardis will run fine without biopython 
+- there are a couple of features such as filtering sequences by length that require biopython - however
+  for most use-cases tardis will run fine without biopython
 
+Configuration
+=============
 
+Tardis is configured by one or more `TOML <https://github.com/toml-lang/toml>`_
+files.  The system configuration in ``/etc/tardis/tardis.toml`` is always read
+first, unless disabled by the command line option ``--no-sysconfig``, in which
+case it is skipped.
+
+Values here may be overridden by command line arguments or user configuration.
+The user configuration is taken from the first in the following list which
+exists:
+
+- the file specified by the command line option ``--userconfig``
+- the file ``tardis.toml`` in the current directory
+- the file ``~/.tardis.toml``
+
+Only the first of these which exists is read;  the others are ignored.
+
+Command line arguments always override values from configuration files.
