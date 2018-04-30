@@ -91,21 +91,23 @@ def readConfigFiles(client_options):
     """
     options = {}
     # later files in the list override earlier ones
-    # we always read the system config file
-    configfiles = [
-        "/etc/tardis/tardis.toml",
-    ]
-    client_configfile = client_options.get('config')
-    user_configfile = os.path.expanduser('~/.tardis.toml')
-    local_configfile = 'tardis.toml'
+    configfiles = []
+    # we always start with the system config file, unless disabled by client option
+    if not client_options.get('no_sysconfig'):
+        configfiles.append('/etc/tardis/tardis.toml')
+    client_configfile = client_options.get('userconfig')
     if client_configfile:
-        # configfile passed on the command line, so use it and ignore the others
+        # user configfile passed on the command line, so use it and ignore the others
         configfiles.append(client_configfile)
-    elif os.path.exists(local_configfile):
-        # configfile in current directory, so use it and ignore the user config
-        configfiles.append(local_configfile)
-    elif os.path.exists(user_configfile):
-        configfiles.append(user_configfile)
+    else:
+        local_configfile = 'tardis.toml'
+        if os.path.exists(local_configfile):
+            # configfile in current directory, so use it and ignore the others
+            configfiles.append(local_configfile)
+        else:
+            user_configfile = os.path.expanduser('~/.tardis.toml')
+            if os.path.exists(user_configfile):
+                configfiles.append(user_configfile)
 
     for configfile in configfiles:
         try:
@@ -113,7 +115,7 @@ def readConfigFiles(client_options):
                 print("reading config from %s" % configfile)
                 obj = toml.load(f)
                 # merge config in with existing
-                print("raw config from %s: %s" % (configfile, str(obj)))
+                #print("raw config from %s: %s" % (configfile, str(obj)))
                 options.update(obj)
         except toml.TomlError as e:
             raise tardisException("syntax error at line %d of %s" % (e.line, configfile))
@@ -264,11 +266,12 @@ def mergeOptionsWithConfig(client_options = None):
         # client options update engine options except in some cases
         options.update(client_options)
 
+        validateOptions(options)
+
         # exceptions
         for override in ["valid_command_patterns"]:
             options[override] = config_options[override]
 
-    validateOptions(options)
     return options
 
 def isCommandValid(toolargs, patternList):

@@ -83,15 +83,18 @@ Configuration
 =============
 
 Tardis is configured by one or more `TOML <https://github.com/toml-lang/toml>`_
-files.  The system configuration in ``/etc/tardis/tardis.toml`` is always read.
-Values here may be overridden by command line arguments or user or local
-configuration.
+files.  The system configuration in ``/etc/tardis/tardis.toml`` is always read
+first, unless disabled by the command line option ``--no-sysconfig``, in which
+case it is skipped.
 
-If the local configuration file ``tardis.toml`` exists in the current directory,
-it is read, and its values override those from the system configuration.  In
-this case, the user configuration file is not read.
+Values here may be overridden by command line arguments or user configuration.
+The user configuration is taken from the first in the following list which
+exists:
 
-Otherwise, if the user configuration file ``~/.tardis.toml`` exists, it is read,
-and its values override those from the system configuration.
+- the file specified by the command line option ``--userconfig``
+- the file ``tardis.toml`` in the current directory
+- the file ``~/.tardis.toml``
+
+Only the first of these which exists is read;  the others are ignored.
 
 Command line arguments always override values from configuration files.

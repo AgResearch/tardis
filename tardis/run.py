@@ -217,7 +217,8 @@ def tardis_main():
     parser.add_argument('--batonfile', dest='batonfile', type=str, metavar='FILE', help='if you supply a "baton file" FILE, tardis will write the process exit code to this file after all processing has completed. This can be useful to preserve synchronous execution of a workflow, even if tardis is started in the background - the workflow can test the existence of the batonfile - if it exists then the corresponding tardis processing step has completed (i.e. another way of each step in a workflow "passing the baton" to the next step)')
     parser.add_argument('--shell-include-file', '--runtimeconfigsourcefile', dest='runtimeconfigsourcefile', type=str, metavar='FILE', help='shell script fragment included in jobs')
     parser.add_argument('-q', '--quiet', dest='quiet', action='store_const', const=True, help='run quietly')
-    parser.add_argument('--config', dest='config', metavar='FILE', help='configuration file')
+    parser.add_argument('--userconfig', dest='userconfig', metavar='FILE', help='user configuration file')
+    parser.add_argument('--no-sysconfig', dest='no_sysconfig', action='store_true', default=False, help='ignore the system configuration file')
     parser.add_argument('command', help='command to run')
     parser.add_argument('arg', nargs='*', help='command arguments')
 
