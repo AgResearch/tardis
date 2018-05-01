@@ -112,7 +112,8 @@ def readConfigFiles(client_options):
     for configfile in configfiles:
         try:
             with open(configfile, 'rb') as f:
-                print("reading config from %s" % configfile)
+                if not client_options.get("quiet", False):
+                    print("reading config from %s" % configfile)
                 obj = toml.load(f)
                 # merge config in with existing
                 #print("raw config from %s: %s" % (configfile, str(obj)))

@@ -3,6 +3,14 @@ import os, subprocess
 import tardis.conditioner.data as data
 import tardis.tutils.tutils as tutils
 
+# for testing sometimes need to change this 
+#RECURSIVE_TARDIS="tardis"
+# ...for example... 
+RECURSIVE_TARDIS="run.py"
+
+
+
+
 class samDataConditioner(data.dataConditioner):
     #output_directive_pattern = "_condition_sam_output_(\S+)"   # generates BAM output 
     #uncompressedoutput_directive_pattern = "_condition_uncompressedsam_output_(\S+)"    # generates SAM output
@@ -64,7 +72,7 @@ class samDataConditioner(data.dataConditioner):
             # less efficient approach of concatenate one at a time, in a loop  
 
             # get the header
-            headerCommand = ["tardis.py" , "-d", self.options["rootdir"], "-q", "-hpctype", self.options["hpctype"], "samtools",  "view" , "-H", "-S" , fileName]
+            headerCommand = [RECURSIVE_TARDIS , "-d", self.options["rootdir"], "-q", "--hpctype", self.options["hpctype"], "samtools",  "view" , "-H", "-S" , fileName]
             self.logWriter.info("starting (recursive tardis) %s"%headerCommand)
             hproc = subprocess.Popen(headerCommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -95,8 +103,8 @@ class samDataConditioner(data.dataConditioner):
                     break
 
             # view the file (without header), stdout = output file
-            #viewCommand = ["tardis.py", "-d", self.options["rootdir"], "-q", "-hpctype", self.options["hpctype"], "samtools",  "view" , "-S", fileName]
-            viewCommand = ["tardis.py", "-d", self.options["rootdir"], "-q", "-hpctype", self.options["hpctype"], "samtools",  "view" , "-S", fileName, ">>" , self.outputFileName]
+            #viewCommand = [RECURSIVE_TARDIS, "-d", self.options["rootdir"], "-q", "--hpctype", self.options["hpctype"], "samtools",  "view" , "-S", fileName]
+            viewCommand = [RECURSIVE_TARDIS, "-d", self.options["rootdir"], "-q", "--hpctype", self.options["hpctype"], "samtools",  "view" , "-S", fileName, ">>" , self.outputFileName]
 
             self.logWriter.info("starting (recursive tardis) %s "%str(viewCommand))
             #vproc = subprocess.Popen(viewCommand, stdout=samfile, stderr=subprocess.PIPE)
@@ -121,7 +129,7 @@ class samDataConditioner(data.dataConditioner):
             if data.dataConditioner.state == data.dataConditioner.OK:
                 self.logWriter.info("compressing sam to sorted bam (compressionConditioning = True)")
 
-                bamCommand = ["tardis.py", "-d", self.options["rootdir"], "-q", "-hpctype", self.options["hpctype"], "samtools","view","-h","-S","-b",self.outputFileName, "|",\
+                bamCommand = [RECURSIVE_TARDIS, "-d", self.options["rootdir"], "-q", "--hpctype", self.options["hpctype"], "samtools","view","-h","-S","-b",self.outputFileName, "|",\
                               "samtools","sort","-", "-T" , "_tardis_sam_sort_tmp" , "-o" , self.outputFileName] # will write outfilebase.bam
 
                 self.logWriter.info("starting (recursive tardis) %s "%str(bamCommand))
