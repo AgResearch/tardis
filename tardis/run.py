@@ -220,7 +220,7 @@ def tardis_main():
     parser.add_argument('--userconfig', dest='userconfig', metavar='FILE', help='user configuration file')
     parser.add_argument('--no-sysconfig', dest='no_sysconfig', action='store_true', default=False, help='ignore the system configuration file')
     parser.add_argument('command', help='command to run')
-    parser.add_argument('arg', nargs='*', help='command arguments')
+    parser.add_argument('arg', nargs=argparse.REMAINDER, help='command arguments')
 
     args = parser.parse_args()
     options = dict((k,v) for k,v in vars(args).iteritems() if v is not None and k != 'command')
