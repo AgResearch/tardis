@@ -8,3 +8,5 @@
 .gitignore
 notes.txt
 /tardis_*
+test/configure_bioconductor_env.src
+test/configure_biopython_env.src
