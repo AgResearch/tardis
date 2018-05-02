@@ -4,9 +4,9 @@ import tardis.conditioner.data as data
 import tardis.tutils.tutils as tutils
 
 # for testing sometimes need to change this 
-#RECURSIVE_TARDIS="tardis"
+RECURSIVE_TARDIS="tardis"
 # ...for example... 
-RECURSIVE_TARDIS="run.py"
+#RECURSIVE_TARDIS="run.py"
 
 
 
