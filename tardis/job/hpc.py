@@ -1,5 +1,6 @@
 import string
 import tardis.tutils.tutils as tutils
+import os
 
 class hpcJob(object):
     """

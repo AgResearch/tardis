@@ -1,13 +1,12 @@
 #!/bin/sh
 
-#export PYTHONPATH=/dataset/bioinformatics_dev/active/tardis/tardis
-#export PATH="/dataset/bioinformatics_dev/active/tardis/tardis:$PATH"
 
 BWA_REF=/dataset/bioinformatics_dev/active/tardis/tardis/test/mRNAs.fa
 DATADIR=/dataset/bioinformatics_dev/active/tardis/tardis/test
 BWA_REF=mRNAs.fa 
 
 
+#TARDIS=tardis
 ###### these settings for testing the dev branch that is checked out######### 
 TARDIS="run.py"
 export PATH=/dataset/bioinformatics_dev/active/tardis/tardis/tardis:/stash/miniconda3/envs/universal2/bin:$PATH 
@@ -24,7 +23,8 @@ function test_legacy() {
 
 function test_hello_world() {
    hpctype=$1
-   $TARDIS -q  --hpctype $1 echo \"hello world\"     
+   #$TARDIS -q  --hpctype $1 echo \"hello world\"     
+   $TARDIS  --hpctype $1 echo \"hello world\"     
 }
 
 function test_blastn() {
@@ -107,14 +107,14 @@ runtimeconfigsourcefile=test_add_path.txt
 $TARDIS -w -c 5  --hpctype slurm bwa aln $DATADIR/$BWA_REF _condition_paired_fastq_input_$DATADIR/R1.fastq \> _condition_throughput_R1_v_$BWA_REF.sai \;  bwa aln $DATADIR/$BWA_REF _condition_paired_fastq_input_$DATADIR/R2.fastq \> _condition_throughput_R2_v_$BWA_REF.sai \; bwa sampe $DATADIR/$BWA_REF _condition_throughput_R1_v_$BWA_REF.sai _condition_throughput_R2_v_$BWA_REF.sai _condition_paired_fastq_input_$DATADIR/R1.fastq _condition_paired_fastq_input_$DATADIR/R2.fastq \> _condition_sam_output_R1R2_vs_mRNAs.bam
 }
 
-#test_hello_world slurm
+test_hello_world slurm
 #test_hello_world condor 
 #test_hello_world local 
 #test_blastn slurm
 #test_blastn condor 
 
 #test_bwa
-test_kmers
+#test_kmers
 #test_add_path
 #test_add_path2
 
