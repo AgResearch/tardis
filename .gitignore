@@ -7,7 +7,9 @@
 .eggs/
 .gitignore
 notes.txt
-/tardis_*
+test/tardis_*
 test/configure_bioconductor_env.src
 test/configure_biopython_env.src
 test/tardis*
+test/custom.slurm
+test/tardis.toml
