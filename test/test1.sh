@@ -107,10 +107,10 @@ runtimeconfigsourcefile=test_add_path.txt
 $TARDIS -w -c 5  --hpctype slurm bwa aln $DATADIR/$BWA_REF _condition_paired_fastq_input_$DATADIR/R1.fastq \> _condition_throughput_R1_v_$BWA_REF.sai \;  bwa aln $DATADIR/$BWA_REF _condition_paired_fastq_input_$DATADIR/R2.fastq \> _condition_throughput_R2_v_$BWA_REF.sai \; bwa sampe $DATADIR/$BWA_REF _condition_throughput_R1_v_$BWA_REF.sai _condition_throughput_R2_v_$BWA_REF.sai _condition_paired_fastq_input_$DATADIR/R1.fastq _condition_paired_fastq_input_$DATADIR/R2.fastq \> _condition_sam_output_R1R2_vs_mRNAs.bam
 }
 
-#test_hello_world slurm
+test_hello_world local
 #test_hello_world condor 
 #test_hello_world local 
-test_blastn slurm
+#test_blastn slurm
 #test_blastn condor 
 
 #test_bwa

@@ -11,7 +11,7 @@ class localhpcJob(hpc.hpcJob):
             
         self.workerList  = {} # this will be overwritten by a shared worker list when the new object is inducted
 
-        (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates(None, "local_shell", "basic_local_runtime_environment")
+        (junk, self.shell_script_template, self.runtime_config_template) = self.get_templates("default_local_job", "local_shell", "basic_local_runtime_environment")
 
     def induct(self,other):
         super(localhpcJob,self).induct(other)
