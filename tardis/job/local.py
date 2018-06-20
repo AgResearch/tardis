@@ -1,4 +1,4 @@
-import string, os, stat, subprocess, sys, re
+import string, os, stat, subprocess, sys, re, time
 
 import tardis.tutils.tutils as tutils
 import tardis.job.hpc as hpc
