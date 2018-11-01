@@ -23,7 +23,7 @@ class fastqDataConditioner(text.textDataConditioner):
     
     inFormat="fastq"
     outFormat="fastq"
-    pairBond = lambda cls,x,y: fastqPairedNamesEqual(x.name, y.name) # x, y is a biopython seqrecord object 
+    pairBond = lambda cls,x,y: tutils.fastqPairedNamesEqual(x.name, y.name) # x, y is a biopython seqrecord object 
     
 
     

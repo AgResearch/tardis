@@ -12,6 +12,5 @@ test/configure_bioconductor_env.src
 test/configure_biopython_env.src
 test/tardis*
 test/custom.slurm
-test/tardis.toml
 test/test1.sh
 test1.sh
