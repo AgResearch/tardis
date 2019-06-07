@@ -2,9 +2,6 @@ import tardis.conditioner.text as text
 import tardis.conditioner.data as data
 
 class blastxmlDataConditioner(text.textDataConditioner):
-    #output_directive_pattern = "_condition_blastxml_output_(\S+)"
-    #product_directive_pattern = "_condition_blastxml_product_(\S+)"
-
     my_directives = ["_condition_blastxml_output_(\S+)", "_condition_blastxml_product_(\S+)"]
     data.dataConditioner.all_directives += my_directives
     data.dataConditioner.published_directives += my_directives

@@ -10,14 +10,6 @@ import tardis.tutils.tutils as tutils
 
 
 class textDataConditioner(data.dataConditioner):
-    #input_directive_pattern = "_condition_text_input_(\S+)"
-    #output_directive_pattern = "_condition_text_output_(\S+)"
-    #uncompressedoutput_directive_pattern = "_condition_uncompressedtext_output_(\S+)"    
-    #product_directive_pattern = "_condition_text_product_(\S+)"
-    #uncompressedproduct_directive_pattern = "_condition_uncompressedtext_product_(\S+)"    
-    #compressedinput_directive_pattern = "_condition_compressedtext_input_(\S+)"
-
-
     my_directives = ["_condition_text_input_(\S+)", "_condition_compressedtext_input_(\S+)",  "_condition_text_output_(\S+)",\
                      "_condition_uncompressedtext_output_(\S+)"    , "_condition_text_product_(\S+)", \
                      "_condition_uncompressedtext_product_(\S+)" ]                     
@@ -99,15 +91,6 @@ class textDataConditioner(data.dataConditioner):
 
         return record_count
         
-        
-    
-    #@classmethod
-    #def getUncompressedStreamCommand(cls, filename):
-    #    match = re.search("(.*)\.gz$", filename)
-    #    if match != None:
-    #        return ["gunzip", "-c", filename]
-    #    else:
-    #        return None
 
     @classmethod
     def getFileCompressionCommand(cls, filename):
@@ -129,11 +112,6 @@ class textDataConditioner(data.dataConditioner):
         dc=textDataConditioner(inputFileName, commandConditioning = commandConditioning, conditioningPattern = conditioningPattern, conditioningWord = conditioningWord , compressionConditioning = compressionConditioning)
         dataConditioner.inputConditioners.append(dc)
         return dc
-    
-    #def addInputConditioner(self, inputFileName, commandConditioning = True, conditioningPattern = None, conditioningWord = None, compressionConditioning = True):
-    #    dc=textDataConditioner(inputFileName, commandConditioning = commandConditioning, conditioningPattern = conditioningPattern, conditioningWord = conditioningWord , compressionConditioning = compressionConditioning)
-    #    self.inputConditioners.append(dc)
-    #    return dc
 
     @classmethod
     def addInputConditioner(cls, prototype, inputFileName, commandConditioning = True, conditioningPattern = None, conditioningWord = None, compressionConditioning = True):
@@ -280,7 +258,6 @@ class textDataConditioner(data.dataConditioner):
         output text files (many files can be handled simply as text files - e.g.
         fasta, fastq etc)
         """
-        #filesToProcess = [filename for filename in self.conditionedOutputFileNames if filename != None]
         filesToProcess = self.getExpectedUnconditionedOutputFiles()
         if len(filesToProcess) == 0:
             self.logWriter.info("unconditionOutput : no files to uncondition")
@@ -292,17 +269,6 @@ class textDataConditioner(data.dataConditioner):
         to
         %s"""%(str(filesToProcess), self.outputFileName))
 
-        # old code using cat - not portable and fails for large numbers of files to process
-        #dataGluingCommand = ["cat"]  + filesToProcess
-        #self.logWriter.info("executing %s"%str(dataGluingCommand))
-        #fileout = open( self.outputFileName, "w" )
-        #proc = subprocess.Popen(dataGluingCommand, stdout=fileout, stderr=subprocess.PIPE)
-        #(stdout, stderr) = proc.communicate()
-        #self.logWriter.info("textDataConditioner : cat of files returned  ( return code %s ) - here is its output "%proc.returncode)
-        #self.logWriter.info("stdout : \n%s"%stdout)
-        #self.logWriter.info("stderr : \n%s"%stderr)
-        #if fileout != None:
-        #    fileout.close()
         fileout = open( self.outputFileName, "w" )
         for file_to_process in filesToProcess:
             with open(file_to_process,"r") as in_stream:
@@ -322,23 +288,7 @@ class textDataConditioner(data.dataConditioner):
             if proc.returncode != 0:
                 self.error("compression of concatenated files appears to have failed - setting error state")
             
-        
-
-        #if self.compressionConditioning:
-        #    # if ok so far - compress the output, else set a class level error flag
-        #    if proc.returncode == 0:
-        #        compressionCommand = self.getFileCompressionCommand(self.outputFileName)
-        #        self.logWriter.info("executing %s"%str(compressionCommand))
-        #        proc = subprocess.Popen(compressionCommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        #        (stdout, stderr) = proc.communicate()
-        #        self.logWriter.info("textDataConditioner : file compression returned  ( return code %s ) - here is its output "%proc.returncode)
-        #        self.logWriter.info("stdout : \n%s"%stdout)
-        #        self.logWriter.info("stderr : \n%s"%stderr)
-        #
-        #        if proc.returncode != 0:
-        #            self.error("compression of concatenated files appears to have failed - setting error state")
-        #    else:
-        #        self.error("cat of files appears to have failed - skipped compression and setting error state")
+    
 
         return
 

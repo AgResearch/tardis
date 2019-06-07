@@ -1,11 +1,6 @@
 import tardis.conditioner.data as data 
 
 class pdfDataConditioner(data.dataConditioner):
-    #output_directive_pattern = "_condition_pdf_output_(\S+)"
-    #uncompressedoutput_directive_pattern = "_condition_uncompressedpdf_output_(\S+)"    
-    #product_directive_pattern = "_condition_pdf_product_(\S+)"
-    #uncompressedproduct_directive_pattern = "_condition_uncompressedpdf_product_(\S+)"
-
     my_directives = ["_condition_pdf_output_(\S+)", "_condition_uncompressedpdf_output_(\S+)",\
                      "_condition_pdf_product_(\S+)", "_condition_uncompressedpdf_product_(\S+)"]
     data.dataConditioner.all_directives += my_directives

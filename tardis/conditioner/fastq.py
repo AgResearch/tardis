@@ -6,13 +6,6 @@ import tardis.conditioner.text as text
 import tardis.tutils.tutils as tutils
 
 class fastqDataConditioner(text.textDataConditioner):
-    #input_directive_pattern = "_condition_fastq_input_(\S+)"
-    #paired_input_directive_pattern = "_condition_paired_fastq_input_(\S+)"
-    #output_directive_pattern = "_condition_fastq_output_(\S+)"
-    #uncompressedoutput_directive_pattern = "_condition_uncompressedfastq_output_(\S+)"    
-    #product_directive_pattern = "_condition_fastq_product_(\S+)"
-    #uncompressedproduct_directive_pattern = "_condition_uncompressedfastq_product_(\S+)"
-
     my_directives = ["_condition_fastq_input_(\S+)", "_condition_paired_fastq_input_(\S+)", "_condition_fastq_output_(\S+)",\
                      "_condition_uncompressedfastq_output_(\S+)" , "_condition_fastq_product_(\S+)", "_condition_uncompressedfastq_product_(\S+)"]
     data.dataConditioner.all_directives += my_directives

@@ -6,12 +6,6 @@ import tardis.tutils.tutils as tutils
 
 
 class fastaDataConditioner(text.textDataConditioner):
-    #input_directive_pattern = "_condition_fasta_input_(\S+)"
-    #output_directive_pattern = "_condition_fasta_output_(\S+)"
-    #product_directive_pattern = "_condition_fasta_product_(\S+)"
-    #uncompressedoutput_directive_pattern = "_condition_uncompressedfasta_output_(\S+)"
-    #uncompressedproduct_directive_pattern = "_condition_uncompressedfasta_product_(\S+)"
-
     my_directives = ["_condition_fasta_input_(\S+)", "_condition_fasta_output_(\S+)",\
                      "_condition_uncompressedfasta_output_(\S+)" , "_condition_fasta_product_(\S+)", "_condition_uncompressedfasta_product_(\S+)"]
     data.dataConditioner.all_directives += my_directives

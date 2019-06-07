@@ -12,12 +12,6 @@ RECURSIVE_TARDIS="tardis"
 
 
 class samDataConditioner(data.dataConditioner):
-    #output_directive_pattern = "_condition_sam_output_(\S+)"   # generates BAM output 
-    #uncompressedoutput_directive_pattern = "_condition_uncompressedsam_output_(\S+)"    # generates SAM output
-    #headlessoutput_directive_pattern = "_condition_headlesssam_output_(\S+)" # generates headless SAM output
-    #product_directive_pattern = "_condition_sam_product_(\S+)"
-    #uncompressedproduct_directive_pattern = "_condition_uncompressedsam_product_(\S+)"    
-    
     my_directives = ["_condition_sam_output_(\S+)", "_condition_uncompressedsam_output_(\S+)",\
                      "_condition_headlesssam_output_(\S+)", "_condition_sam_product_(\S+)", "_condition_uncompressedsam_product_(\S+)"]
     data.dataConditioner.all_directives += my_directives
@@ -93,9 +87,6 @@ class samDataConditioner(data.dataConditioner):
                     with open(self.outputFileName, "w") as samfile:
                         samfile.write(samHeader)
                     
-                #samfile.close()
-                #samfile = open(self.outputFileName, "a")
-                
             # else check this header is the same as the cached one - if not fail
             else:
                 if not tutils.SAMHeadersEqual(samHeader,hstdout):
@@ -150,6 +141,5 @@ class samDataConditioner(data.dataConditioner):
             else:
                 self.logWriter.info("(skipped bam compression and sort as previous steps failed)")
         return
-
 
 

@@ -3,9 +3,6 @@ import os
 import tardis.conditioner.data as data
 
 class waitDataConditioner(data.dataConditioner):
-    #output_directive_pattern = "_condition_bam_output_(\S+)"
-    #product_directive_pattern = "_condition_bam_product_(\S+)"
-
     my_directives = ["_condition_wait_output_(\S+)", "_condition_wait_product_(\S+)"] 
     data.dataConditioner.all_directives += my_directives
     data.dataConditioner.published_directives += my_directives
