@@ -8,18 +8,20 @@ foreground shell command to execute a task in parallel on a cluster,
 just as one would enter a foreground command to run an application
 interactively. The details of the HPC environment (which load balancer /
 scheduler etc ) do not need to be known by the end-user, these are
-encapsulated by *tardis*.
+encapsulated by *tardis* (i.e. it acts as a simple meta-scheduler, though 
+does not load-balance across different schedulers).
 
-| *tardis* is a pre-processor which reconditions (precompiles) a
+| To achieve this *tardis* acts as a command pre-processor. It "reconditions" a
 marked-up unix shell command to generate
-| a sequence of "conditioned" commands which it then launches on a
-cluster. The mark-up is added by the user to indicate the input(s) and
+| a sequence of "conditioned" commands (stripped of mark-up) which it then launches on a
+cluster. The mark-up may be added by the user to indicate the input(s) and
 output(s) of the command. *tardis* splits input files into "conditioned"
 input chunks and will "uncondition" (join together) the output chunks to
 obtain the final outputs, with the sequence of conditioned commands
-referring to conditioned input and output filenames.
+referring to conditioned input and output filenames. (Without mark-up, tardis simply
+launches the command as entered, onto the cluster, with no conditioning of input or output)
 
-The goal of *tardis* is that the user should only need to know the API
+The aspiration of *tardis* is that the user should only need to know the API
 of the application they are running - i.e. what is the command needed to
 start a single process on their local machine to execute their
 computation: the pre-processor then handles all of the administrivia of
@@ -27,6 +29,11 @@ launching many processes on a cluster (or optionally on the local
 machine) to complete the computation. Ideally the user should not even
 have to know of the existence of the scheduler / load balancer (such as
 slurm , condor etc).
+
+*tardis* can also simplify pipeline development, by: encapsulating the details of launching 
+jobs on the underlying cluster; ensuring that tasks launched on the cluster complete synchronously 
+within the context of the pipeline; ensuring that any errors returned by subtasks (for example one chunk 
+of a file), bubble up to appear as an error status for the job as a whole. 
 
 The administrivia handled by the *tardis* pre-processor includes
 
@@ -47,7 +54,7 @@ The administrivia handled by the *tardis* pre-processor includes
    their own application command, and how to mark up the command
    arguments that specify input(s) and output(s)
 -  optional job submission on the local machine, with *tardis* acting as
-   scheduler and load balancer.
+   scheduler
 -  optionally waiting until all submitted jobs have completed, and then
    concatenating output chunks together to obtain final outputs
 -  optionally running in the foreground - i.e. waiting until all
